@@ -123,4 +123,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Fix button cursor */
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
 }

@@ -1,14 +1,15 @@
 import { ChartAreaInteractive } from './_components/chart-area-interactive';
-import { DataTable } from './_components/data-table';
 import { SectionCards } from './_components/section-cards';
-import data from './data.json';
 
 export default function DashboardPage(): React.ReactElement {
   return (
-    <>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Overview of your business metrics</p>
+      </div>
       <SectionCards />
       <ChartAreaInteractive />
-      <DataTable data={data} />
-    </>
+    </div>
   );
 }

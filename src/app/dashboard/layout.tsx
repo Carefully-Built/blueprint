@@ -1,40 +1,57 @@
+import { redirect } from 'next/navigation';
+
+import { getSession } from '@/lib/session';
+import { workos } from '@/lib/workos';
+import { TooltipProvider } from '@/components/ui/tooltip';
+
 import { AppSidebar } from './_components/app-sidebar';
-import { SiteHeader } from './_components/site-header';
-import { UserSync } from './_components/user-sync';
+import { NoOrgView } from './_components/no-org-view';
 
-import type { ReactNode } from 'react';
+async function checkUserOrganization() {
+  const session = await getSession();
+  
+  if (!session?.user) {
+    redirect('/sign-in');
+  }
 
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+  try {
+    const memberships = await workos.userManagement.listOrganizationMemberships({
+      userId: session.user.id,
+    });
 
-
-interface DashboardLayoutProps {
-  children: ReactNode;
+    return memberships.data.length > 0;
+  } catch (error) {
+    console.error('Error checking organization:', error);
+    return false;
+  }
 }
 
-export default function DashboardLayout({
-  children,
-}: DashboardLayoutProps): React.ReactElement {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
+  const hasOrganization = await checkUserOrganization();
+
+  // If user has no organization, show create org view
+  if (!hasOrganization) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <NoOrgView />
+      </div>
+    );
+  }
+
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 12)',
-        } as React.CSSProperties
-      }
-    >
-      <UserSync />
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
-              {children}
-            </div>
+    <TooltipProvider>
+      <div className="min-h-screen">
+        <AppSidebar />
+        <main className="pl-[72px] lg:pl-[240px] transition-all duration-200">
+          <div className="p-4 lg:p-6">
+            {children}
           </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }
