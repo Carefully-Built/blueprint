@@ -16,7 +16,7 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     },
 
     // STRICT MODE
@@ -33,12 +33,11 @@
     // Additional strict checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    // "exactOptionalPropertyTypes": true, // Disabled: shadcn components not fully compatible
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": false // Disabled: shadcn components use index signatures
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": [
     "next-env.d.ts",

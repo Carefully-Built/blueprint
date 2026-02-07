@@ -1,11 +1,12 @@
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 
-import type { LayoutProps } from '@/types';
 import type { Metadata, Viewport } from 'next';
+import type { ReactNode } from 'react';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { siteConfig } from '@/config/site';
+import { Providers } from '@/providers';
 
 
 import './globals.css';
@@ -28,14 +29,20 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const RootLayout = ({ children }: LayoutProps): React.ReactElement => (
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+const RootLayout = ({ children }: RootLayoutProps): React.ReactElement => (
   <html
     lang="en"
     className={`${GeistSans.variable} ${GeistMono.variable}`}
     suppressHydrationWarning
   >
     <body className="min-h-screen bg-background font-sans antialiased">
-      <TooltipProvider>{children}</TooltipProvider>
+      <Providers>
+        <TooltipProvider>{children}</TooltipProvider>
+      </Providers>
     </body>
   </html>
 );

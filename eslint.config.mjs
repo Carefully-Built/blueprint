@@ -6,15 +6,15 @@ import importPlugin from 'eslint-plugin-import';
 
 // Shadcn generated files - these get relaxed rules
 const shadcnPatterns = [
-  'components/ui/**',
-  'app/**/_components/**',  // Page-specific components (often shadcn blocks)
-  'app/dashboard/page.tsx', // Shadcn dashboard block
-  'hooks/use-mobile.ts',
+  'src/components/ui/**',
+  'src/app/**/_components/**',
+  'src/app/dashboard/page.tsx',
+  'src/hooks/use-mobile.ts',
 ];
 
 export default tseslint.config(
   {
-    ignores: ['.next/**', 'node_modules/**', '*.config.*'],
+    ignores: ['.next/**', 'node_modules/**', '*.config.*', 'convex/**'],
   },
 
   // Base TypeScript strict config
