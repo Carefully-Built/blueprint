@@ -12,6 +12,7 @@ interface ConvexClientProviderProps {
 export const ConvexClientProvider = ({
   children,
 }: ConvexClientProviderProps): React.ReactElement => {
+  // eslint-disable-next-line @typescript-eslint/dot-notation
   const convexUrl = process.env['NEXT_PUBLIC_CONVEX_URL'];
 
   const client = useMemo(() => {

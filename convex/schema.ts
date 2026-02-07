@@ -1,7 +1,12 @@
 import { defineSchema } from 'convex/server';
 
-import { itemsTable } from './schema/items';
-import { usersTable } from './schema/users';
+import { itemsTable } from './tables/items';
+import { usersTable } from './tables/users';
+
+// ============================================================
+// SCHEMA
+// Combines all table definitions from ./tables/
+// ============================================================
 
 export default defineSchema({
   users: usersTable,
