@@ -1,6 +1,7 @@
 "use client"
 
 import { LayoutDashboard, ListTodo, Settings } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -48,6 +49,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="h-10">
               <Link href="/dashboard" className="flex items-center gap-2">
+                <Image
+                  src="/images/blue_logo.svg"
+                  alt="Blueprint"
+                  width={32}
+                  height={32}
+                  className="size-8"
+                />
                 <span className="text-lg font-semibold">Blueprint</span>
               </Link>
             </SidebarMenuButton>

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { MainNav } from './main-nav';
@@ -13,6 +14,13 @@ export function SiteHeader(): React.ReactElement {
         <div className="flex items-center gap-4">
           <MobileNav items={landingNav} />
           <Link href="/" className="flex items-center gap-2 font-semibold">
+            <Image
+              src="/images/blue_logo.svg"
+              alt="Blueprint"
+              width={32}
+              height={32}
+              className="size-8"
+            />
             <span className="text-xl">Blueprint</span>
           </Link>
         </div>

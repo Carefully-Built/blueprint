@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -28,7 +29,7 @@ export function LoginForm({
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(
-    async (_prevState: any, formData: FormData) => {
+    async (_prevState: unknown, formData: FormData) => {
       const result = await signIn(formData);
       if (result.success) {
         router.push('/dashboard');
@@ -41,6 +42,18 @@ export function LoginForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
+      <div className="flex justify-center">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <Image
+            src="/images/blue_logo.svg"
+            alt="Blueprint"
+            width={32}
+            height={32}
+            className="size-8"
+          />
+          <span className="text-xl">Blueprint</span>
+        </Link>
+      </div>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
