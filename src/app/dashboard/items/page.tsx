@@ -1,7 +1,7 @@
 'use client';
 
 import { Download, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { useMutation, useQuery } from 'convex/react';
 
