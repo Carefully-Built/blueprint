@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -28,17 +28,42 @@ export function SignUpForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(
-    async (_prevState: unknown, formData: FormData) => {
-      const result = await signUp(formData);
-      if (result.success) {
-        router.push('/dashboard');
-        return result;
-      }
-      return result;
-    },
-    { success: false, error: null }
-  );
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Keep form values on error
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPending(true);
+    setError(null);
+
+    const data = new FormData();
+    data.append('firstName', formData.firstName);
+    data.append('lastName', formData.lastName);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+
+    const result = await signUp(data);
+    
+    if (result.success) {
+      router.push('/dashboard');
+    } else {
+      setError(result.error || 'Something went wrong');
+      // Don't clear password on error either - let user fix specific issue
+      setIsPending(false);
+    }
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -62,7 +87,7 @@ export function SignUpForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={formAction}>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
@@ -74,6 +99,8 @@ export function SignUpForm({
                     placeholder="John"
                     required
                     autoComplete="given-name"
+                    value={formData.firstName}
+                    onChange={handleChange}
                   />
                 </Field>
 
@@ -86,6 +113,8 @@ export function SignUpForm({
                     placeholder="Doe"
                     required
                     autoComplete="family-name"
+                    value={formData.lastName}
+                    onChange={handleChange}
                   />
                 </Field>
               </div>
@@ -99,6 +128,8 @@ export function SignUpForm({
                   placeholder="you@example.com"
                   required
                   autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </Field>
 
@@ -111,15 +142,17 @@ export function SignUpForm({
                   required
                   autoComplete="new-password"
                   minLength={8}
+                  value={formData.password}
+                  onChange={handleChange}
                 />
                 <FieldDescription>
-                  Must be at least 8 characters
+                  Must be at least 8 characters with uppercase, lowercase, number, and special character
                 </FieldDescription>
               </Field>
 
-              {state?.error && (
+              {error && (
                 <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-                  {state.error}
+                  {error}
                 </div>
               )}
 

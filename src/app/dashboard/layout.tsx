@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-import { AppSidebar } from './_components/app-sidebar';
+import { DashboardShell } from './_components/dashboard-shell';
 import { NoOrgView } from './_components/no-org-view';
 
 async function checkUserOrganization() {
@@ -33,7 +33,6 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const hasOrganization = await checkUserOrganization();
 
-  // If user has no organization, show create org view
   if (!hasOrganization) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -44,14 +43,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen">
-        <AppSidebar />
-        <main className="pl-[72px] lg:pl-[240px] transition-all duration-200">
-          <div className="p-4 lg:p-6">
-            {children}
-          </div>
-        </main>
-      </div>
+      <DashboardShell>{children}</DashboardShell>
     </TooltipProvider>
   );
 }
