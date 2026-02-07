@@ -16,7 +16,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { SidebarOrgSwitcher } from "@/components/workos"
 
 const navItems = [
   {
@@ -59,6 +61,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span className="text-lg font-semibold">Blueprint</span>
               </Link>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarOrgSwitcher />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
