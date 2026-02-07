@@ -1,5 +1,6 @@
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
+import { Toaster } from 'sonner';
 
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
@@ -42,6 +43,7 @@ const RootLayout = ({ children }: RootLayoutProps): React.ReactElement => (
     <body className="min-h-screen bg-background font-sans antialiased">
       <Providers>
         <TooltipProvider>{children}</TooltipProvider>
+        <Toaster position="bottom-right" richColors />
       </Providers>
     </body>
   </html>
