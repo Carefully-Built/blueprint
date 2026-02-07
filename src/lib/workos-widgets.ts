@@ -1,5 +1,5 @@
 import { getSession } from './session';
-import { workos } from './workos';
+import { workos, WORKOS_CLIENT_ID } from './workos';
 
 export type WidgetScopes =
   | 'widgets:users-table:manage'
@@ -12,6 +12,10 @@ interface GetWidgetTokenOptions {
   scopes: WidgetScopes[];
 }
 
+interface WidgetTokenResult {
+  token: string;
+}
+
 export async function getWidgetToken(options: GetWidgetTokenOptions): Promise<string> {
   const session = await getSession();
 
@@ -19,13 +23,17 @@ export async function getWidgetToken(options: GetWidgetTokenOptions): Promise<st
     throw new Error('Unauthorized');
   }
 
-  const result = await workos.widgets.getToken({
+  const result = (await workos.widgets.getToken({
     organizationId: options.organizationId,
     userId: session.user.id,
     scopes: options.scopes,
-  });
+  })) as unknown as WidgetTokenResult;
 
-  return (result as any).token ?? (result as unknown as string);
+  return result.token;
+}
+
+interface OrganizationDomain {
+  state: string;
 }
 
 export async function getOrganizationSwitchUrl(
@@ -40,18 +48,19 @@ export async function getOrganizationSwitchUrl(
 
   try {
     const org = await workos.organizations.getOrganization(organizationId);
+    const domains = org.domains as OrganizationDomain[] | undefined;
 
-    if (org.domains?.some(d => d.state === 'verified')) {
+    if (domains?.some(d => d.state === 'verified')) {
       const authUrl = workos.userManagement.getAuthorizationUrl({
-        clientId: process.env.WORKOS_CLIENT_ID!,
+        clientId: WORKOS_CLIENT_ID,
         redirectUri,
         organizationId,
         provider: 'authkit',
       });
       return authUrl;
     }
-  } catch (error) {
-    console.error('Error checking organization:', error);
+  } catch (err) {
+    console.error('Error checking organization:', err);
   }
 
   return null;

@@ -9,7 +9,11 @@ const PUBLIC_PATHS = [
   '/',
   '/sign-in',
   '/sign-up',
+  '/signup',
   '/forgot-password',
+  '/update-password',
+  '/privacy',
+  '/terms',
   '/api/auth',
   '/api/test-workos',
 ];
@@ -23,9 +27,14 @@ async function getSessionFromRequest(
     return null;
   }
 
+  const password = process.env.WORKOS_COOKIE_PASSWORD;
+  if (!password) {
+    return null;
+  }
+
   try {
     const session = await unsealData<SessionData>(sessionCookie.value, {
-      password: process.env.WORKOS_COOKIE_PASSWORD!,
+      password,
     });
     return session;
   } catch {
@@ -33,7 +42,7 @@ async function getSessionFromRequest(
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // Allow public paths
@@ -45,7 +54,6 @@ export async function middleware(request: NextRequest) {
   const session = await getSessionFromRequest(request);
 
   if (!session) {
-    // Redirect to sign-in if not authenticated
     const url = new URL('/sign-in', request.url);
     url.searchParams.set('from', pathname);
     return NextResponse.redirect(url);
@@ -56,13 +64,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/webhooks).*)',
   ],
 };

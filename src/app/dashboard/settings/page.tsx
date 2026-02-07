@@ -1,17 +1,28 @@
 import { redirect } from 'next/navigation';
 
+import { OrganizationTab } from './_components/organization-tab';
 import { ProfileTab } from './_components/profile-tab';
 import { SecurityTab } from './_components/security-tab';
 import { SessionsTab } from './_components/sessions-tab';
-import { OrganizationTab } from './_components/organization-tab';
 import { TeamTab } from './_components/team-tab';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getSession } from '@/lib/session';
-import { getWidgetToken } from '@/lib/workos-widgets';
+import { getSession, type SessionData } from '@/lib/session';
 import { workos } from '@/lib/workos';
+import { getWidgetToken } from '@/lib/workos-widgets';
 
-async function getUserAndOrg() {
+interface OrgInfo {
+  id: string;
+  name: string;
+  role: string;
+}
+
+interface UserAndOrg {
+  session: SessionData;
+  organization: OrgInfo | null;
+}
+
+async function getUserAndOrg(): Promise<UserAndOrg> {
   const session = await getSession();
 
   if (!session?.user) {
@@ -37,22 +48,19 @@ async function getUserAndOrg() {
       organization: {
         id: org.id,
         name: org.name,
-        role: firstMembership.role?.slug || 'member',
+        role: firstMembership.role.slug || 'member',
       },
     };
-  } catch (error) {
-    console.error('Error getting user org:', error);
+  } catch (err) {
+    console.error('Error getting user org:', err);
     return { session, organization: null };
   }
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage(): Promise<React.ReactElement> {
   const { session, organization } = await getUserAndOrg();
-
-  // The session access token works for user-level widgets (profile, security, sessions)
   const accessToken = session.accessToken;
 
-  // Team management widget needs an org-scoped widget token
   let teamAuthToken: string | null = null;
   if (organization) {
     try {
@@ -60,8 +68,8 @@ export default async function SettingsPage() {
         organizationId: organization.id,
         scopes: ['widgets:users-table:manage'],
       });
-    } catch (error) {
-      console.error('Error getting widget token:', error);
+    } catch (err) {
+      console.error('Error getting widget token:', err);
     }
   }
 

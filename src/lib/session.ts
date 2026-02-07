@@ -5,7 +5,6 @@ import { WORKOS_COOKIE_PASSWORD } from './workos';
 
 import type { User } from '@workos-inc/node';
 
-
 export interface SessionData {
   user: User;
   accessToken: string;
@@ -17,7 +16,7 @@ const SESSION_OPTIONS = {
   ttl: 60 * 60 * 24 * 7, // 7 days
 };
 
-export async function createSession(data: SessionData) {
+export async function createSession(data: SessionData): Promise<void> {
   const cookieStore = await cookies();
   const encryptedSession = await sealData(data, SESSION_OPTIONS);
 
@@ -44,12 +43,12 @@ export async function getSession(): Promise<SessionData | null> {
       SESSION_OPTIONS
     );
     return session;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-export async function deleteSession() {
+export async function deleteSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete('session');
 }

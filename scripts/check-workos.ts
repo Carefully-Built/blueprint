@@ -1,7 +1,8 @@
-
 import { WorkOS } from '@workos-inc/node';
 
-const workos = new WorkOS('sk_test_123'); // Dummy key
+const workos = new WorkOS('sk_test_123');
 
-console.log('Methods on userManagement:');
-console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(workos.userManagement)));
+// eslint-disable-next-line no-console
+console.info('Methods on userManagement:');
+// eslint-disable-next-line no-console
+console.info(Object.getOwnPropertyNames(Object.getPrototypeOf(workos.userManagement)));

@@ -1,38 +1,40 @@
 import { NextResponse } from 'next/server';
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { syncUserToConvex } from '@/lib/convex-server';
 import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
 
-export async function POST(request: NextRequest) {
+interface CreateOrgBody {
+  name: string;
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name } = await request.json();
+    const body = (await request.json()) as CreateOrgBody;
+    const { name } = body;
 
     if (!name || typeof name !== 'string') {
       return NextResponse.json({ error: 'Organization name required' }, { status: 400 });
     }
 
-    // Create organization in WorkOS
     const org = await workos.organizations.createOrganization({
       name: name.trim(),
     });
 
-    // Add the current user as a member of the organization
     await workos.userManagement.createOrganizationMembership({
       userId: session.user.id,
       organizationId: org.id,
-      roleSlug: 'admin', // Creator becomes admin
+      roleSlug: 'admin',
     });
 
-    // Update user in Convex with the new organization
     await syncUserToConvex({
       id: session.user.id,
       email: session.user.email,
@@ -41,29 +43,25 @@ export async function POST(request: NextRequest) {
       profilePictureUrl: session.user.profilePictureUrl,
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       organizationId: org.id,
-      organization: {
-        id: org.id,
-        name: org.name,
-      }
+      organization: { id: org.id, name: org.name },
     });
-  } catch (error) {
-    console.error('Error creating organization:', error);
+  } catch (err) {
+    console.error('Error creating organization:', err);
     return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 });
   }
 }
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const session = await getSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all organizations the user belongs to
     const memberships = await workos.userManagement.listOrganizationMemberships({
       userId: session.user.id,
     });
@@ -74,14 +72,14 @@ export async function GET() {
         return {
           id: org.id,
           name: org.name,
-          role: membership.role?.slug || 'member',
+          role: membership.role.slug || 'member',
         };
       })
     );
 
     return NextResponse.json({ organizations });
-  } catch (error) {
-    console.error('Error listing organizations:', error);
+  } catch (err) {
+    console.error('Error listing organizations:', err);
     return NextResponse.json({ error: 'Failed to list organizations' }, { status: 500 });
   }
 }
