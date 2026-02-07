@@ -1,8 +1,10 @@
 "use client"
 
+import { LayoutDashboard, ListTodo, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Sidebar,
   SidebarContent,
@@ -14,18 +16,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const navItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    icon: "📊",
+    icon: LayoutDashboard,
   },
   {
     title: "Items",
     href: "/dashboard/items",
-    icon: "📋",
+    icon: ListTodo,
   },
 ]
 
@@ -33,7 +34,7 @@ const bottomNavItems = [
   {
     title: "Settings",
     href: "/dashboard/settings",
-    icon: "⚙️",
+    icon: Settings,
   },
 ]
 
@@ -65,7 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     isActive={pathname === item.href}
                   >
                     <Link href={item.href}>
-                      <span>{item.icon}</span>
+                      <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -85,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     isActive={pathname === item.href}
                   >
                     <Link href={item.href}>
-                      <span>{item.icon}</span>
+                      <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
