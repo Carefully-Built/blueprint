@@ -38,7 +38,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noPropertyAccessFromIndexSignature": false // Disabled: shadcn components use index signatures
   },
   "include": [
     "next-env.d.ts",

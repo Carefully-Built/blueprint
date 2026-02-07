@@ -4,6 +4,26 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 
+// Shadcn generated files - these get relaxed rules
+const shadcnPatterns = [
+  'components/ui/**',
+  'components/app-sidebar.tsx',
+  'components/chart-*.tsx',
+  'components/data-table.tsx',
+  'components/date-picker.tsx',
+  'components/login-form.tsx',
+  'components/nav-*.tsx',
+  'components/section-cards.tsx',
+  'components/site-header.tsx',
+  'components/example*.tsx',
+  'components/component-example.tsx',
+  'components/calendars.tsx',
+  'components/charts/**',
+  'components/forms/**',
+  'hooks/use-mobile.ts',
+  'app/dashboard/**', // Shadcn dashboard block
+];
+
 export default tseslint.config(
   {
     ignores: ['.next/**', 'node_modules/**', '*.config.*'],
@@ -16,7 +36,7 @@ export default tseslint.config(
   // Main application code - STRICT
   {
     files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['components/ui/**', 'components/example*.tsx', 'components/component-example.tsx'],
+    ignores: shadcnPatterns,
     languageOptions: {
       parserOptions: {
         project: true,
@@ -81,9 +101,9 @@ export default tseslint.config(
     },
   },
 
-  // Shadcn UI components - relaxed (generated code)
+  // Shadcn components - relaxed (generated code)
   {
-    files: ['components/ui/**/*.ts', 'components/ui/**/*.tsx', 'components/example*.tsx', 'components/component-example.tsx'],
+    files: shadcnPatterns,
     languageOptions: {
       parserOptions: {
         project: true,
@@ -97,11 +117,18 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
       '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-unnecessary-type-conversion': 'off',
+      '@typescript-eslint/consistent-type-imports': 'off',
       'import/order': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
