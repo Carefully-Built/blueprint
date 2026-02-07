@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint . --max-warnings 0",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit",
+    "dev": "bunx --bun next dev --turbo",
+    "build": "bunx --bun next build",
+    "start": "bunx --bun next start",
+    "lint": "bunx --bun eslint . --max-warnings 0",
+    "lint:fix": "bunx --bun eslint . --fix",
+    "typecheck": "bunx --bun tsc --noEmit",
     "check": "bun run typecheck && bun run lint",
-    "format": "prettier --write ."
+    "format": "bunx --bun prettier --write ."
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
