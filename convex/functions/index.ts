@@ -14,5 +14,5 @@
  * @module convex/functions
  */
 
-export { users } from './users/index';
-export { items } from './items/index';
+export * as users from './users/index';
+export * as items from './items/index';

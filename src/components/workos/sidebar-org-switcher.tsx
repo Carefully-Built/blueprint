@@ -44,7 +44,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
       .then((res) => (res.ok ? res.json() : { organizations: [] }))
       .then((data: OrganizationsResponse) => {
         setOrganizations(data.organizations);
-        if (data.organizations.length > 0) {
+        if (data.organizations.length > 0 && data.organizations[0]) {
           setCurrentOrg(data.organizations[0]);
         }
       })

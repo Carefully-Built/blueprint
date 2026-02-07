@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { WidgetScopes } from '@/lib/workos-widgets';
+
+interface WidgetTokenResponse {
+  token: string;
+}
 
 interface UseWidgetTokenOptions {
   /** Required scopes for the widget */
@@ -27,13 +31,19 @@ interface UseWidgetTokenOptions {
  * return <OrgSwitcher authToken={token} />;
  * ```
  */
-export function useWidgetToken({ scopes, organizationId }: UseWidgetTokenOptions) {
+export function useWidgetToken({ scopes, organizationId }: UseWidgetTokenOptions): {
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+} {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const scopesKey = useMemo(() => scopes.join(','), [scopes]);
+
   useEffect(() => {
-    const fetchToken = async () => {
+    const fetchToken = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
@@ -48,7 +58,7 @@ export function useWidgetToken({ scopes, organizationId }: UseWidgetTokenOptions
           throw new Error('Failed to get widget token');
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as WidgetTokenResponse;
         setToken(data.token);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -57,8 +67,8 @@ export function useWidgetToken({ scopes, organizationId }: UseWidgetTokenOptions
       }
     };
 
-    fetchToken();
-  }, [scopes.join(','), organizationId]);
+    void fetchToken();
+  }, [scopesKey, scopes, organizationId]);
 
   return { token, loading, error };
 }

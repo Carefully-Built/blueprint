@@ -26,7 +26,7 @@ export async function syncUserToConvex(user: {
   try {
     const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || undefined;
     
-    const userId = await convexServer.mutation(api.functions.users.syncFromWorkOS, {
+    const userId = await convexServer.mutation(api.functions.users.mutations.syncFromWorkOS, {
       workosId: user.id,
       email: user.email,
       name,

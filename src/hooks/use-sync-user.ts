@@ -18,7 +18,7 @@ export interface WorkOSUser {
  * Call this in your root layout or dashboard layout
  */
 export function useSyncUser(user: WorkOSUser | null): { user: WorkOSUser | null } {
-  const syncUser = useMutation(api.functions.users.syncFromWorkOS);
+  const syncUser = useMutation(api.functions.users.mutations.syncFromWorkOS);
 
   useEffect(() => {
     if (user) {
@@ -32,7 +32,7 @@ export function useSyncUser(user: WorkOSUser | null): { user: WorkOSUser | null 
         lastName: user.lastName,
         imageUrl: user.profilePictureUrl,
         organizationId: user.organizationId,
-        role: 'member', // Default role, adjust based on your logic
+        role: 'member',
       }).catch((error: unknown) => {
         console.error('Failed to sync user with Convex:', error);
       });

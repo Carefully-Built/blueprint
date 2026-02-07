@@ -1,19 +1,24 @@
 'use client';
 
-import { useMutation, useQuery } from 'convex/react';
-import { Download, Plus } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { ItemForm } from './_components/ItemForm';
 
-import type { Id } from '@convex/_generated/dataModel';
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
+import type { Id } from '@convex/_generated/dataModel';
 
-import { api } from '@convex/_generated/api';
 import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
 import { SmartTable } from '@/components/shared/SmartTable';
 import { Button } from '@/components/ui/button';
+import {
+  useCreateItem,
+  useDeleteItem,
+  useItemsByOrganization,
+  useUpdateItem,
+} from '@/hooks/use-items';
+import { useUsersByOrganization } from '@/hooks/use-users';
 
 
 
@@ -67,11 +72,11 @@ export default function ItemsPage(): React.ReactElement {
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   
   // Convex queries and mutations
-  const items = useQuery(api.functions.items.listByOrganization, { organizationId: 'default' });
-  const users = useQuery(api.functions.users.listByOrganization, { organizationId: 'default' });
-  const createItem = useMutation(api.functions.items.create);
-  const updateItem = useMutation(api.functions.items.update);
-  const deleteItem = useMutation(api.functions.items.remove);
+  const items = useItemsByOrganization('default');
+  const users = useUsersByOrganization('default');
+  const createItem = useCreateItem();
+  const updateItem = useUpdateItem();
+  const deleteItem = useDeleteItem();
 
   const isLoading = items === undefined;
   
