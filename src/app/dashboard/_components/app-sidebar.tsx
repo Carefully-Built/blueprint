@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, ListTodo, Settings, PanelLeftClose, PanelLeft, LogOut } from "lucide-react"
+import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -12,14 +12,15 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SidebarOrgSwitcher } from "@/components/workos"
 
-const SIDEBAR_WIDTH = 240
-const SIDEBAR_COLLAPSED_WIDTH = 64
+const SIDEBAR_WIDTH = 220
+const SIDEBAR_COLLAPSED_WIDTH = 56
 
 // Context to share sidebar state with layout
 export const SidebarContext = createContext<{
   isCollapsed: boolean
   setIsCollapsed: (v: boolean) => void
-}>({ isCollapsed: false, setIsCollapsed: () => {} })
+  refreshOrg: () => void
+}>({ isCollapsed: false, setIsCollapsed: () => {}, refreshOrg: () => {} })
 
 export function useSidebar() {
   return useContext(SidebarContext)
@@ -74,14 +75,14 @@ export function AppSidebar() {
       <Link
         href={item.href}
         className={cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
           isActive 
-            ? "bg-primary/10 text-primary font-medium" 
-            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            ? "bg-accent text-accent-foreground" 
+            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
           isCollapsed && "justify-center px-2"
         )}
       >
-        <Icon className="size-5 shrink-0" />
+        <Icon className="size-4 shrink-0" />
         {!isCollapsed && <span>{item.title}</span>}
       </Link>
     )
@@ -106,55 +107,55 @@ export function AppSidebar() {
       style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
     >
       {/* Header */}
-      <div className="flex h-14 items-center gap-2 border-b px-3">
-        <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
+      <div className="flex h-12 items-center gap-2 px-2">
+        <Link href="/dashboard" className="flex items-center gap-2 min-w-0 flex-1">
           <Image
             src="/images/blue_logo.svg"
             alt="Blueprint"
-            width={32}
-            height={32}
-            className="size-8 shrink-0"
+            width={28}
+            height={28}
+            className="size-7 shrink-0"
           />
           {!isCollapsed && (
-            <span className="text-lg font-semibold truncate">Blueprint</span>
+            <span className="text-base font-semibold truncate">Blueprint</span>
           )}
         </Link>
         <Button
           variant="ghost"
           size="icon"
-          className={cn("size-8 shrink-0", isCollapsed ? "mx-auto" : "ml-auto")}
+          className="size-7 shrink-0"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          {isCollapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
+          {isCollapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
         </Button>
       </div>
 
-      {/* Org Switcher - always visible */}
-      <div className="border-b p-2">
+      {/* Org Switcher */}
+      <div className="px-2 pb-2">
         <SidebarOrgSwitcher collapsed={isCollapsed} />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
+      <nav className="flex-1 space-y-0.5 px-2 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}
       </nav>
 
       {/* Bottom Navigation */}
-      <div className="border-t p-2 space-y-1">
+      <div className="px-2 py-2 space-y-0.5">
         {bottomNavItems.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}
       </div>
 
       {/* User Profile */}
-      <div className="border-t p-2">
+      <div className="border-t px-2 py-2">
         <div className={cn(
-          "flex items-center gap-3 rounded-lg p-2",
+          "flex items-center gap-2.5 rounded-md p-1.5",
           isCollapsed && "justify-center"
         )}>
-          <Avatar className="size-8 shrink-0">
+          <Avatar className="size-7 shrink-0">
             <AvatarImage src={user?.imageUrl} />
             <AvatarFallback className="text-xs">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -163,13 +164,13 @@ export function AppSidebar() {
           {!isCollapsed && (
             <>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.name || 'Loading...'}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
+                <p className="text-sm font-medium truncate leading-tight">{user?.name || 'Loading...'}</p>
+                <p className="text-xs text-muted-foreground truncate leading-tight">{user?.email || ''}</p>
               </div>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={handleSignOut}>
-                    <LogOut className="size-4" />
+                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={handleSignOut}>
+                    <LogOut className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Sign out</TooltipContent>
@@ -186,8 +187,12 @@ export function AppSidebar() {
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   
+  const refreshOrg = () => {
+    window.dispatchEvent(new CustomEvent('org-updated'));
+  }
+  
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed }}>
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, refreshOrg }}>
       {children}
     </SidebarContext.Provider>
   )

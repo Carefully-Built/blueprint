@@ -157,8 +157,7 @@ export default function ItemsPage(): React.ReactElement {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Items</h1>
-          <p className="text-muted-foreground">Manage your items</p>
+          <h1 className="text-xl font-semibold tracking-tight">Items</h1>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleDownload}>

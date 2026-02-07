@@ -48,12 +48,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your account and organization settings.
-        </p>
-      </div>
+      <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
 
       <Tabs defaultValue="account" className="w-full">
         <TabsList>

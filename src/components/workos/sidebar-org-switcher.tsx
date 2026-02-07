@@ -33,7 +33,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
 
-  useEffect(() => {
+  const fetchOrgs = () => {
     fetch('/api/organizations')
       .then(res => res.ok ? res.json() : { organizations: [] })
       .then(data => {
@@ -43,6 +43,15 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
         }
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchOrgs();
+    
+    // Listen for org updates
+    const handleOrgUpdate = () => fetchOrgs();
+    window.addEventListener('org-updated', handleOrgUpdate);
+    return () => window.removeEventListener('org-updated', handleOrgUpdate);
   }, []);
 
   const handleSwitch = async (org: Organization) => {

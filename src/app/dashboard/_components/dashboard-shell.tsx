@@ -10,7 +10,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
     <main 
       className={cn(
         "min-h-screen transition-all duration-200 ease-in-out",
-        isCollapsed ? "pl-16" : "pl-60"
+        isCollapsed ? "pl-14" : "pl-[220px]"
       )}
     >
       <div className="p-4 lg:p-6">

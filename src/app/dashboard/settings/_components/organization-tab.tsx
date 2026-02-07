@@ -11,6 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Trigger event to refresh org in sidebar
+function triggerOrgRefresh() {
+  window.dispatchEvent(new CustomEvent('org-updated'));
+}
+
 interface OrganizationTabProps {
   organization: {
     id: string;
@@ -57,6 +62,7 @@ export function OrganizationTab({ organization }: OrganizationTabProps) {
       }
 
       toast.success('Organization updated');
+      triggerOrgRefresh();
       router.refresh();
     } catch (error) {
       toast.error('Failed to update organization');
