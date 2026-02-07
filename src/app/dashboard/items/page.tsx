@@ -1,7 +1,7 @@
 'use client';
 
 import { Download, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useMutation, useQuery } from 'convex/react';
 
@@ -14,6 +14,29 @@ import { ItemForm } from './_components/ItemForm';
 
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
 import type { Id } from '@/../convex/_generated/dataModel';
+
+// Hook to get current Convex user
+function useCurrentUser() {
+  const [workosId, setWorkosId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    fetch('/api/auth/user')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.user?.id) {
+          setWorkosId(data.user.id);
+        }
+      })
+      .catch(() => setWorkosId(null));
+  }, []);
+  
+  const user = useQuery(
+    api.functions.users.getByWorkosId,
+    workosId ? { workosId } : 'skip'
+  );
+  
+  return user;
+}
 
 interface Item {
   _id: Id<'items'>;
@@ -63,6 +86,9 @@ const columns: Column<Item>[] = [
 export default function ItemsPage(): React.ReactElement {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  
+  // Get current user
+  const currentUser = useCurrentUser();
   
   // Convex queries and mutations
   const items = useQuery(api.functions.items.listByOrganization, { organizationId: 'default' });
@@ -119,6 +145,10 @@ export default function ItemsPage(): React.ReactElement {
         });
         toast.success('Item updated');
       } else {
+        if (!currentUser?._id) {
+          toast.error('User not loaded yet. Please wait and try again.');
+          return;
+        }
         await createItem({ 
           data: {
             name: data.name,
@@ -127,7 +157,7 @@ export default function ItemsPage(): React.ReactElement {
             priority: data.priority,
             organizationId: 'default',
           },
-          createdBy: 'temp-user-id' as Id<'users'>,
+          createdBy: currentUser._id,
         });
         toast.success('Item created');
       }
