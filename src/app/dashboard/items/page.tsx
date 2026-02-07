@@ -3,29 +3,26 @@
 import { Download, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useMutation, useQuery } from 'convex/react';
+
+import { Button } from '@/components/ui/button';
+import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
+import { SmartTable } from '@/components/shared/SmartTable';
+import { api } from '@/../convex/_generated/api';
 
 import { ItemForm } from './_components/ItemForm';
 
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
-
-import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
-import { SmartTable } from '@/components/shared/SmartTable';
-import { Button } from '@/components/ui/button';
+import type { Id } from '@/../convex/_generated/dataModel';
 
 interface Item {
-  _id: string;
+  _id: Id<'items'>;
   name: string;
   description?: string;
   status: 'draft' | 'active' | 'archived';
   priority: 'low' | 'medium' | 'high';
   createdAt: number;
 }
-
-const mockItems: Item[] = [
-  { _id: '1', name: 'Design system', description: 'Create component library', status: 'active', priority: 'high', createdAt: Date.now() },
-  { _id: '2', name: 'API integration', description: 'Connect to backend', status: 'draft', priority: 'medium', createdAt: Date.now() },
-  { _id: '3', name: 'Documentation', status: 'archived', priority: 'low', createdAt: Date.now() },
-];
 
 const statusColors: Record<string, string> = {
   draft: 'bg-yellow-100 text-yellow-800',
@@ -66,7 +63,14 @@ const columns: Column<Item>[] = [
 export default function ItemsPage(): React.ReactElement {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
-  const [isLoading] = useState(false);
+  
+  // Convex queries and mutations
+  const items = useQuery(api.functions.items.listByOrganization, { organizationId: 'default' });
+  const createItem = useMutation(api.functions.items.create);
+  const updateItem = useMutation(api.functions.items.update);
+  const deleteItem = useMutation(api.functions.items.remove);
+
+  const isLoading = items === undefined;
 
   const actionHandlers: ActionHandlers<Item> = {
     onEdit: (item) => {
@@ -77,7 +81,11 @@ export default function ItemsPage(): React.ReactElement {
       toast.error(`Delete "${item.name}"?`, {
         action: {
           label: 'Confirm',
-          onClick: () => toast.success(`"${item.name}" deleted`),
+          onClick: () => {
+            void deleteItem({ id: item._id }).then(() => {
+              toast.success(`"${item.name}" deleted`);
+            });
+          },
         },
       });
     },
@@ -92,17 +100,41 @@ export default function ItemsPage(): React.ReactElement {
     toast.info('Exporting items...');
   };
 
-  const handleSubmit = (_data: { name: string; description?: string; status: 'draft' | 'active' | 'archived'; priority: 'low' | 'medium' | 'high' }): void => {
-    toast.success(editingItem ? 'Item updated' : 'Item created');
-    setIsSheetOpen(false);
-    setEditingItem(null);
-  };
-
-  const handleDelete = (): void => {
-    if (editingItem) {
-      toast.success(`"${editingItem.name}" deleted`);
+  const handleSubmit = async (data: { 
+    name: string; 
+    description?: string; 
+    status: 'draft' | 'active' | 'archived'; 
+    priority: 'low' | 'medium' | 'high';
+  }): Promise<void> => {
+    try {
+      if (editingItem) {
+        await updateItem({ 
+          id: editingItem._id, 
+          data: {
+            name: data.name,
+            description: data.description,
+            status: data.status,
+            priority: data.priority,
+          }
+        });
+        toast.success('Item updated');
+      } else {
+        await createItem({ 
+          data: {
+            name: data.name,
+            description: data.description,
+            status: data.status,
+            priority: data.priority,
+            organizationId: 'default',
+          },
+          createdBy: 'temp-user-id' as Id<'users'>,
+        });
+        toast.success('Item created');
+      }
       setIsSheetOpen(false);
       setEditingItem(null);
+    } catch {
+      toast.error('Something went wrong');
     }
   };
 
@@ -131,7 +163,7 @@ export default function ItemsPage(): React.ReactElement {
       </div>
 
       <SmartTable
-        data={mockItems}
+        data={items ?? []}
         columns={columns}
         isLoading={isLoading}
         actions={['edit', 'delete']}
@@ -146,10 +178,8 @@ export default function ItemsPage(): React.ReactElement {
       >
         <ItemForm
           defaultValues={editingItem ?? undefined}
-          onSubmit={handleSubmit}
+          onSubmit={(data) => void handleSubmit(data)}
           onCancel={handleCancel}
-          onDelete={editingItem ? handleDelete : undefined}
-          isEdit={Boolean(editingItem)}
         />
       </ResponsiveSheet>
     </div>

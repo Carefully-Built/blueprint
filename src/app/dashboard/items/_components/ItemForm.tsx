@@ -20,9 +20,7 @@ interface ItemFormProps {
   defaultValues?: Partial<ItemFormValues>;
   onSubmit: (data: ItemFormValues) => void;
   onCancel: () => void;
-  onDelete?: () => void;
   isLoading?: boolean;
-  isEdit?: boolean;
 }
 
 const statusOptions = [
@@ -41,9 +39,7 @@ export function ItemForm({
   defaultValues,
   onSubmit,
   onCancel,
-  onDelete,
   isLoading = false,
-  isEdit = false,
 }: ItemFormProps): React.ReactElement {
   const initialValues: ItemFormValues = {
     name: defaultValues?.name ?? '',
@@ -83,22 +79,13 @@ export function ItemForm({
           className="w-full"
         />
       </div>
-      <div className="mt-6 flex items-center justify-between border-t pt-4">
-        <div>
-          {isEdit && onDelete ? (
-            <Button type="button" variant="destructive" onClick={onDelete}>
-              Delete
-            </Button>
-          ) : null}
-        </div>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save'}
-          </Button>
-        </div>
+      <div className="mt-6 flex justify-end gap-2 border-t pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Save'}
+        </Button>
       </div>
     </CustomForm>
   );
