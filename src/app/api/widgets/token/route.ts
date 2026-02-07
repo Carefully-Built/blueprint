@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 
+import type { WidgetScopes } from '@/lib/workos-widgets';
 import type { NextRequest } from 'next/server';
 
 import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
-import type { WidgetScopes } from '@/lib/workos-widgets';
+
 
 interface TokenRequestBody {
   scopes?: WidgetScopes[];
