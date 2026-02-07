@@ -2,6 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import { AppSidebar, SidebarProvider, useSidebar } from './app-sidebar';
+import type { UserInfo } from './app-sidebar';
+import { useSyncUser, type WorkOSUser } from '@/hooks/use-sync-user';
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -20,11 +22,18 @@ function MainContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+interface DashboardShellProps {
+  children: React.ReactNode;
+  user: WorkOSUser & UserInfo;
+}
+
+export function DashboardShell({ children, user }: DashboardShellProps) {
+  useSyncUser(user);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen">
-        <AppSidebar />
+        <AppSidebar user={user} />
         <MainContent>{children}</MainContent>
       </div>
     </SidebarProvider>

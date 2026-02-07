@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
+import type { NextRequest} from 'next/server';
+
+import { syncUserToConvex } from '@/lib/convex-server';
 import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
-import { syncUserToConvex } from '@/lib/convex-server';
 
 export async function POST(request: NextRequest) {
   try {

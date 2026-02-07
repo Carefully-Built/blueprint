@@ -1,19 +1,21 @@
 'use client';
 
+import { useMutation, useQuery } from 'convex/react';
 import { Download, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useMutation, useQuery } from 'convex/react';
-
-import { Button } from '@/components/ui/button';
-import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
-import { SmartTable } from '@/components/shared/SmartTable';
-import { api } from '@/../convex/_generated/api';
 
 import { ItemForm } from './_components/ItemForm';
 
+import type { Id } from '@convex/_generated/dataModel';
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
-import type { Id } from '@/../convex/_generated/dataModel';
+
+import { api } from '@convex/_generated/api';
+import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
+import { SmartTable } from '@/components/shared/SmartTable';
+import { Button } from '@/components/ui/button';
+
+
 
 interface Item {
   _id: Id<'items'>;

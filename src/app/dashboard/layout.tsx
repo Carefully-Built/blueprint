@@ -1,37 +1,35 @@
 import { redirect } from 'next/navigation';
 
-import { getSession } from '@/lib/session';
-import { workos } from '@/lib/workos';
-import { TooltipProvider } from '@/components/ui/tooltip';
-
 import { DashboardShell } from './_components/dashboard-shell';
 import { NoOrgView } from './_components/no-org-view';
 
-async function checkUserOrganization() {
-  const session = await getSession();
-  
-  if (!session?.user) {
-    redirect('/sign-in');
-  }
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { getSession } from '@/lib/session';
+import { workos } from '@/lib/workos';
 
-  try {
-    const memberships = await workos.userManagement.listOrganizationMemberships({
-      userId: session.user.id,
-    });
-
-    return memberships.data.length > 0;
-  } catch (error) {
-    console.error('Error checking organization:', error);
-    return false;
-  }
-}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function DashboardLayout({ children }: DashboardLayoutProps) {
-  const hasOrganization = await checkUserOrganization();
+export default async function DashboardLayout({ children }: DashboardLayoutProps): Promise<React.ReactElement> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect('/sign-in');
+  }
+
+  let hasOrganization = false;
+  let organizationId: string | undefined;
+  try {
+    const memberships = await workos.userManagement.listOrganizationMemberships({
+      userId: session.user.id,
+    });
+    hasOrganization = memberships.data.length > 0;
+    organizationId = memberships.data[0]?.organizationId;
+  } catch (error) {
+    console.error('Error checking organization:', error);
+  }
 
   if (!hasOrganization) {
     return (
@@ -41,9 +39,20 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
     );
   }
 
+  const userInfo = {
+    id: session.user.id,
+    email: session.user.email,
+    firstName: session.user.firstName ?? undefined,
+    lastName: session.user.lastName ?? undefined,
+    profilePictureUrl: session.user.profilePictureUrl ?? undefined,
+    organizationId,
+    name: `${session.user.firstName ?? ''} ${session.user.lastName ?? ''}`.trim() || session.user.email,
+    imageUrl: session.user.profilePictureUrl ?? undefined,
+  };
+
   return (
     <TooltipProvider>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell user={userInfo}>{children}</DashboardShell>
     </TooltipProvider>
   );
 }

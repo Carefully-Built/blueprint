@@ -1,8 +1,10 @@
-import { cookies } from 'next/headers';
 import { sealData, unsealData } from 'iron-session';
-import type { User } from '@workos-inc/node';
+import { cookies } from 'next/headers';
 
 import { WORKOS_COOKIE_PASSWORD } from './workos';
+
+import type { User } from '@workos-inc/node';
+
 
 export interface SessionData {
   user: User;

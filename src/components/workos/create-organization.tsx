@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -15,33 +13,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface CreateOrganizationProps {
-  /** Trigger element (defaults to a button) */
   children?: React.ReactNode;
-  /** Callback when organization is created */
   onCreated?: (orgId: string) => void;
 }
 
-/**
- * Create Organization widget.
- * Opens a dialog to create a new organization.
- * 
- * Usage:
- * ```tsx
- * <CreateOrganization onCreated={(id) => console.log('Created:', id)}>
- *   <Button>Create Organization</Button>
- * </CreateOrganization>
- * ```
- */
-export function CreateOrganization({ children, onCreated }: CreateOrganizationProps) {
+export function CreateOrganization({ children, onCreated }: CreateOrganizationProps): React.ReactElement {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -54,12 +41,12 @@ export function CreateOrganization({ children, onCreated }: CreateOrganizationPr
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create organization');
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? 'Failed to create organization');
       }
 
-      const { organizationId } = await response.json();
-      
+      const { organizationId } = (await response.json()) as { organizationId: string };
+
       setOpen(false);
       setName('');
       onCreated?.(organizationId);
@@ -74,10 +61,14 @@ export function CreateOrganization({ children, onCreated }: CreateOrganizationPr
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children || <Button variant="outline">Create Organization</Button>}
+        {children ?? <Button variant="outline">Create Organization</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={(e): void => {
+            void handleSubmit(e);
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Create Organization</DialogTitle>
             <DialogDescription>
@@ -89,21 +80,27 @@ export function CreateOrganization({ children, onCreated }: CreateOrganizationPr
               <Label htmlFor="name">Organization Name</Label>
               <Input
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
                 placeholder="Acme Inc."
                 required
+                value={name}
+                onChange={(e): void => {
+                  setName(e.target.value);
+                }}
               />
             </div>
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={(): void => {
+                setOpen(false);
+              }}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !name.trim()}>
+            <Button disabled={loading || !name.trim()} type="submit">
               {loading ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>

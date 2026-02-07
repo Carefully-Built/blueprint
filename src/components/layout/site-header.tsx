@@ -28,7 +28,7 @@ export function SiteHeader(): React.ReactElement {
         <div className="hidden items-center gap-6 md:flex">
           <MainNav items={landingNav} />
           <Button asChild>
-            <Link href="/sign-in">Sign In</Link>
+            <Link href="/login">Sign In</Link>
           </Button>
         </div>
       </div>

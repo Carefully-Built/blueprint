@@ -1,11 +1,18 @@
-// ============================================================
-// CONVEX API INDEX
-// Central export of all API functions
-// ============================================================
+/**
+ * Convex Functions API
+ *
+ * Central namespace for all Convex database functions.
+ *
+ * Usage:
+ *   import { users, items } from '@/convex/functions';
+ *
+ *   users.getById()
+ *   users.create()
+ *   items.listByOrganization()
+ *   items.update()
+ *
+ * @module convex/functions
+ */
 
-export { UsersAPI } from './users';
-export { ItemsAPI } from './items';
-
-// Re-export individual functions for direct imports
-export * as users from './users';
-export * as items from './items';
+export { users } from './users/index';
+export { items } from './items/index';

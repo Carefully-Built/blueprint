@@ -1,6 +1,6 @@
 'use client';
 
-import { UserSessionsWidget } from '@/components/workos/user-sessions';
+import { UserSessions, WorkOsWidgets } from '@/components/workos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SessionsTabProps {
@@ -17,7 +17,9 @@ export function SessionsTab({ authToken }: SessionsTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <UserSessionsWidget authToken={authToken} />
+        <WorkOsWidgets>
+          <UserSessions authToken={authToken} currentSessionId="" />
+        </WorkOsWidgets>
       </CardContent>
     </Card>
   );

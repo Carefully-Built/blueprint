@@ -1,6 +1,6 @@
 'use client';
 
-import { UserSecurityWidget } from '@/components/workos/user-security';
+import { UserSecurity, WorkOsWidgets } from '@/components/workos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SecurityTabProps {
@@ -17,7 +17,9 @@ export function SecurityTab({ authToken }: SecurityTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <UserSecurityWidget authToken={authToken} />
+        <WorkOsWidgets>
+          <UserSecurity authToken={authToken} />
+        </WorkOsWidgets>
       </CardContent>
     </Card>
   );

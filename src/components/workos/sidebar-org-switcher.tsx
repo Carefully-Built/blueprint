@@ -1,10 +1,11 @@
 'use client';
 
 import { Building2, ChevronDown, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { cn } from '@/lib/utils';
+import { CreateOrganization } from './create-organization';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { CreateOrganization } from './create-organization';
+import { cn } from '@/lib/utils';
+
 
 interface Organization {
   id: string;
@@ -23,38 +25,47 @@ interface Organization {
   role: string;
 }
 
+interface OrganizationsResponse {
+  organizations: Organization[];
+}
+
 interface SidebarOrgSwitcherProps {
   collapsed?: boolean;
   onSwitch?: (orgId: string) => void;
 }
 
-export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSwitcherProps) {
+export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSwitcherProps): React.ReactElement {
   const router = useRouter();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
 
-  const fetchOrgs = () => {
+  const fetchOrgs = (): void => {
     fetch('/api/organizations')
-      .then(res => res.ok ? res.json() : { organizations: [] })
-      .then(data => {
-        setOrganizations(data.organizations || []);
-        if (data.organizations?.length > 0) {
+      .then((res) => (res.ok ? res.json() : { organizations: [] }))
+      .then((data: OrganizationsResponse) => {
+        setOrganizations(data.organizations);
+        if (data.organizations.length > 0) {
           setCurrentOrg(data.organizations[0]);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Silently fail
+      });
   };
 
   useEffect(() => {
     fetchOrgs();
-    
-    // Listen for org updates
-    const handleOrgUpdate = () => fetchOrgs();
+
+    const handleOrgUpdate = (): void => {
+      fetchOrgs();
+    };
     window.addEventListener('org-updated', handleOrgUpdate);
-    return () => window.removeEventListener('org-updated', handleOrgUpdate);
+    return (): void => {
+      window.removeEventListener('org-updated', handleOrgUpdate);
+    };
   }, []);
 
-  const handleSwitch = async (org: Organization) => {
+  const handleSwitch = async (org: Organization): Promise<void> => {
     try {
       const response = await fetch('/api/organizations/switch', {
         method: 'POST',
@@ -72,12 +83,12 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
     }
   };
 
-  const handleCreated = (orgId: string) => {
-    fetch('/api/organizations')
-      .then(res => res.json())
-      .then(data => {
-        setOrganizations(data.organizations || []);
-        const newOrg = data.organizations?.find((o: Organization) => o.id === orgId);
+  const handleCreated = (orgId: string): void => {
+    void fetch('/api/organizations')
+      .then((res) => res.json())
+      .then((data: OrganizationsResponse) => {
+        setOrganizations(data.organizations);
+        const newOrg = data.organizations.find((o: Organization) => o.id === orgId);
         if (newOrg) {
           setCurrentOrg(newOrg);
         }
@@ -86,34 +97,38 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
     router.refresh();
   };
 
-  // Get initials for collapsed view
-  const initials = currentOrg?.name
-    ?.split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase() || 'O';
+  const initials =
+    currentOrg?.name
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() ?? 'O';
 
   const dropdownContent = (
-    <DropdownMenuContent align={collapsed ? "center" : "start"} className="w-56">
+    <DropdownMenuContent align={collapsed ? 'center' : 'start'} className="w-56">
       <DropdownMenuLabel>Organizations</DropdownMenuLabel>
       <DropdownMenuSeparator />
       {organizations.map((org) => (
         <DropdownMenuItem
           key={org.id}
-          onClick={() => handleSwitch(org)}
           className={cn(currentOrg?.id === org.id && 'bg-accent')}
+          onClick={(): void => {
+            void handleSwitch(org);
+          }}
         >
           <Building2 className="mr-2 size-4" />
           <span className="truncate">{org.name}</span>
         </DropdownMenuItem>
       ))}
-      {organizations.length === 0 && (
-        <DropdownMenuItem disabled>No organizations</DropdownMenuItem>
-      )}
+      {organizations.length === 0 && <DropdownMenuItem disabled>No organizations</DropdownMenuItem>}
       <DropdownMenuSeparator />
       <CreateOrganization onCreated={handleCreated}>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+        <DropdownMenuItem
+          onSelect={(e): void => {
+            e.preventDefault();
+          }}
+        >
           <Plus className="mr-2 size-4" />
           Create Organization
         </DropdownMenuItem>
@@ -127,14 +142,14 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-full h-10">
-                <div className="size-8 rounded-md bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+              <Button className="h-10 w-full" size="icon" variant="ghost">
+                <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">
                   {initials}
                 </div>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="right">{currentOrg?.name || 'Organization'}</TooltipContent>
+          <TooltipContent side="right">{currentOrg?.name ?? 'Organization'}</TooltipContent>
         </Tooltip>
         {dropdownContent}
       </DropdownMenu>
@@ -144,14 +159,14 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between h-10 px-2">
-          <span className="flex items-center gap-2 min-w-0">
-            <div className="size-6 rounded bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
+        <Button className="h-10 w-full justify-between px-2" variant="ghost">
+          <span className="flex min-w-0 items-center gap-2">
+            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-primary/10 text-xs font-semibold text-primary">
               {initials}
             </div>
-            <span className="truncate text-sm">{currentOrg?.name || 'Select Org'}</span>
+            <span className="truncate text-sm">{currentOrg?.name ?? 'Select Org'}</span>
           </span>
-          <ChevronDown className="size-4 opacity-50 shrink-0" />
+          <ChevronDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       {dropdownContent}

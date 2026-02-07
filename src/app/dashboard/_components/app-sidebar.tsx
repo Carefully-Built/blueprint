@@ -3,14 +3,15 @@
 import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useState, useEffect, createContext, useContext } from "react"
+import { usePathname } from "next/navigation"
+import { useState, createContext, useContext } from "react"
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SidebarOrgSwitcher } from "@/components/workos"
+import { signOutAction } from "@/app/(auth)/actions"
 
 const SIDEBAR_WIDTH = 220
 const SIDEBAR_COLLAPSED_WIDTH = 56
@@ -20,7 +21,7 @@ export const SidebarContext = createContext<{
   isCollapsed: boolean
   setIsCollapsed: (v: boolean) => void
   refreshOrg: () => void
-}>({ isCollapsed: false, setIsCollapsed: () => {}, refreshOrg: () => {} })
+}>({ isCollapsed: false, setIsCollapsed: () => undefined, refreshOrg: () => undefined })
 
 export function useSidebar() {
   return useContext(SidebarContext)
@@ -35,36 +36,23 @@ const bottomNavItems = [
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
-interface UserInfo {
+
+export interface UserInfo {
   email: string
   name: string
   imageUrl?: string
 }
 
-export function AppSidebar() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const { isCollapsed, setIsCollapsed } = useSidebar()
-  const [user, setUser] = useState<UserInfo | null>(null)
+interface AppSidebarProps {
+  user: UserInfo | null;
+}
 
-  useEffect(() => {
-    fetch('/api/auth/user')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.user) {
-          setUser({
-            email: data.user.email,
-            name: `${data.user.firstName || ''} ${data.user.lastName || ''}`.trim() || data.user.email,
-            imageUrl: data.user.profilePictureUrl,
-          })
-        }
-      })
-      .catch(() => setUser(null))
-  }, [])
+export function AppSidebar({ user }: AppSidebarProps) {
+  const pathname = usePathname()
+  const { isCollapsed, setIsCollapsed } = useSidebar()
 
   const handleSignOut = async () => {
-    await fetch('/api/auth/signout', { method: 'POST' })
-    router.push('/')
+    await signOutAction();
   }
 
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
@@ -169,7 +157,7 @@ export function AppSidebar() {
               </div>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={handleSignOut}>
+                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={() => { void handleSignOut() }}>
                     <LogOut className="size-3.5" />
                   </Button>
                 </TooltipTrigger>

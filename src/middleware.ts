@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import { unsealData } from 'iron-session';
+import { NextResponse } from 'next/server';
+
 import type { SessionData } from './lib/session';
+import type { NextRequest } from 'next/server';
 
 // Paths that don't require authentication
 const PUBLIC_PATHS = [

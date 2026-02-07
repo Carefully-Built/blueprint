@@ -1,6 +1,6 @@
 'use client';
 
-import { UserProfileWidget } from '@/components/workos/user-profile';
+import { UserProfile, WorkOsWidgets } from '@/components/workos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ProfileTabProps {
@@ -17,7 +17,9 @@ export function ProfileTab({ authToken }: ProfileTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <UserProfileWidget authToken={authToken} />
+        <WorkOsWidgets>
+          <UserProfile authToken={authToken} />
+        </WorkOsWidgets>
       </CardContent>
     </Card>
   );
