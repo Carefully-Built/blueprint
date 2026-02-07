@@ -26,6 +26,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@workos-inc/authkit-nextjs": "^2.13.0",
     "@workos-inc/node": "^8.2.0",
+    "@workos-inc/widgets": "^1.8.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.31.7",

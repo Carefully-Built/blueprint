@@ -1,0 +1,62 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+import type { WidgetScopes } from '@/lib/workos-widgets';
+
+interface UseWidgetTokenOptions {
+  scopes: WidgetScopes[];
+  organizationId?: string;
+}
+
+/**
+ * Hook to get a widget token for WorkOS widgets.
+ * Fetches the token from the API and caches it.
+ * 
+ * @example
+ * ```tsx
+ * const { token, loading, error } = useWidgetToken({
+ *   scopes: ['widgets:organization-switcher:read']
+ * });
+ * 
+ * if (loading) return <Skeleton />;
+ * if (error) return <div>Error: {error}</div>;
+ * 
+ * return <OrgSwitcher authToken={token} />;
+ * ```
+ */
+export function useWidgetToken({ scopes, organizationId }: UseWidgetTokenOptions) {
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/widgets/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scopes, organizationId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get widget token');
+        }
+
+        const data = await response.json();
+        setToken(data.token);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchToken();
+  }, [scopes.join(','), organizationId]);
+
+  return { token, loading, error };
+}
