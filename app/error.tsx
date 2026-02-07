@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface ErrorPageProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -21,24 +23,13 @@ const ErrorPage = ({ error, reset }: ErrorPageProps): React.ReactElement => {
         An unexpected error occurred. Our team has been notified.
       </p>
       <div className="mt-4 flex gap-4">
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Try Again
-        </button>
-        <Link
-          href="/"
-          className="inline-flex h-10 items-center justify-center rounded-md border px-6 text-sm font-medium hover:bg-accent"
-        >
-          Go Home
-        </Link>
+        <Button onClick={reset}>Try Again</Button>
+        <Button variant="outline" asChild>
+          <Link href="/">Go Home</Link>
+        </Button>
       </div>
       {error.digest ? (
-        <p className="mt-4 text-xs text-muted-foreground">
-          Error ID: {error.digest}
-        </p>
+        <p className="mt-4 text-xs text-muted-foreground">Error ID: {error.digest}</p>
       ) : null}
     </div>
   );

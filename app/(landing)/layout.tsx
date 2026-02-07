@@ -1,25 +1,33 @@
+import Link from 'next/link';
+
 import type { LayoutProps } from '@/types';
+
+import { Button } from '@/components/ui/button';
+
 
 const LandingLayout = ({ children }: LayoutProps): React.ReactElement => (
   <div className="relative flex min-h-screen flex-col">
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
           <span className="text-xl">Blueprint</span>
-        </div>
+        </Link>
         <nav className="flex items-center gap-6">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground">
-            Features
-          </a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground">
-            Pricing
-          </a>
-          <a
-            href="/sign-in"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          <Link
+            href="#features"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Sign In
-          </a>
+            Features
+          </Link>
+          <Link
+            href="#pricing"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Pricing
+          </Link>
+          <Button asChild>
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
         </nav>
       </div>
     </header>

@@ -1,5 +1,14 @@
 import type { Metadata } from 'next';
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
+
 export const metadata: Metadata = {
   title: 'Dashboard',
 };
@@ -21,26 +30,40 @@ const DashboardPage = (): React.ReactElement => (
     {/* Stats Grid */}
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
-        <div key={stat.label} className="rounded-lg border bg-card p-6">
-          <p className="text-sm text-muted-foreground">{stat.label}</p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <p className="text-2xl font-bold">{stat.value}</p>
-            <span className="text-sm text-green-600">{stat.change}</span>
-          </div>
-        </div>
+        <Card key={stat.label}>
+          <CardHeader className="pb-2">
+            <CardDescription>{stat.label}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold">{stat.value}</span>
+              <span className="text-sm text-green-600">{stat.change}</span>
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
 
     {/* Content Grid */}
     <div className="grid gap-6 lg:grid-cols-2">
-      <div className="rounded-lg border p-6">
-        <h2 className="mb-4 font-semibold">Recent Activity</h2>
-        <p className="text-sm text-muted-foreground">Chart placeholder</p>
-      </div>
-      <div className="rounded-lg border p-6">
-        <h2 className="mb-4 font-semibold">Quick Actions</h2>
-        <p className="text-sm text-muted-foreground">Actions placeholder</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Your latest actions and events</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Chart placeholder</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common tasks and shortcuts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Actions placeholder</p>
+        </CardContent>
+      </Card>
     </div>
   </div>
 );

@@ -1,5 +1,8 @@
 'use client';
 
+// Note: Can't use Shadcn Button here as this is outside the root layout
+// This is the fallback when the entire app crashes
+
 interface GlobalErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -16,13 +19,13 @@ const GlobalError = ({ error, reset }: GlobalErrorProps): React.ReactElement => 
       <button
         type="button"
         onClick={reset}
-        className="mt-4 rounded-md bg-neutral-900 px-6 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900"
+        className="mt-4 rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
       >
         Refresh Page
       </button>
-      {error.digest && (
+      {error.digest ? (
         <p className="mt-4 text-xs opacity-50">Error ID: {error.digest}</p>
-      )}
+      ) : null}
     </body>
   </html>
 );
