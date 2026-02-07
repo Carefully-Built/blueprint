@@ -32,7 +32,7 @@ export async function syncUserToConvex(user: {
       firstName: user.firstName ?? undefined,
       lastName: user.lastName ?? undefined,
       imageUrl: user.profilePictureUrl ?? undefined,
-      organizationId: undefined,
+      organizationId: 'default',
       role: 'member',
     });
 

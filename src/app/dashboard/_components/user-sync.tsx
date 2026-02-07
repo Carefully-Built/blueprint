@@ -1,12 +1,9 @@
 'use client';
 
-import { useSyncUser } from '@/hooks/use-sync-user';
-
 /**
- * Client component that syncs WorkOS user with Convex
- * Include this in the dashboard layout to ensure user sync
+ * User sync is now handled server-side during sign-in/sign-up.
+ * This component is kept for backwards compatibility but does nothing.
  */
 export function UserSync() {
-  useSyncUser();
   return null;
 }
