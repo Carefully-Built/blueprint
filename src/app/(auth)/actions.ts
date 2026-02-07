@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { workos, WORKOS_CLIENT_ID } from '@/lib/workos';
 import { createSession, deleteSession } from '@/lib/session';
+import { syncUserToConvex } from '@/lib/convex-server';
 
 export async function signUp(formData: FormData) {
   const email = formData.get('email') as string;
@@ -28,6 +29,9 @@ export async function signUp(formData: FormData) {
         email,
         password,
       });
+
+    // Sync user to Convex (server-side, reliable)
+    await syncUserToConvex(authenticatedUser);
 
     // Create session
     await createSession({
@@ -58,6 +62,10 @@ export async function signIn(formData: FormData) {
         password,
       });
 
+    // Sync user to Convex (server-side, reliable)
+    await syncUserToConvex(user);
+
+    // Create session
     await createSession({
       user,
       accessToken,

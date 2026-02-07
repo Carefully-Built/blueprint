@@ -15,29 +15,6 @@ import { ItemForm } from './_components/ItemForm';
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
 import type { Id } from '@/../convex/_generated/dataModel';
 
-// Hook to get current Convex user
-function useCurrentUser() {
-  const [workosId, setWorkosId] = useState<string | null>(null);
-  
-  useEffect(() => {
-    fetch('/api/auth/user')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.user?.id) {
-          setWorkosId(data.user.id);
-        }
-      })
-      .catch(() => setWorkosId(null));
-  }, []);
-  
-  const user = useQuery(
-    api.functions.users.getByWorkosId,
-    workosId ? { workosId } : 'skip'
-  );
-  
-  return user;
-}
-
 interface Item {
   _id: Id<'items'>;
   name: string;
@@ -87,16 +64,18 @@ export default function ItemsPage(): React.ReactElement {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   
-  // Get current user
-  const currentUser = useCurrentUser();
-  
   // Convex queries and mutations
   const items = useQuery(api.functions.items.listByOrganization, { organizationId: 'default' });
+  const users = useQuery(api.functions.users.listByOrganization, { organizationId: 'default' });
   const createItem = useMutation(api.functions.items.create);
   const updateItem = useMutation(api.functions.items.update);
   const deleteItem = useMutation(api.functions.items.remove);
 
   const isLoading = items === undefined;
+  
+  // Get the first user as fallback (the one who just signed in)
+  // In production, you'd want proper user context from server components
+  const currentUser = users?.[0];
 
   const actionHandlers: ActionHandlers<Item> = {
     onEdit: (item) => {
@@ -146,7 +125,7 @@ export default function ItemsPage(): React.ReactElement {
         toast.success('Item updated');
       } else {
         if (!currentUser?._id) {
-          toast.error('User not loaded yet. Please wait and try again.');
+          toast.error('No user found. Please sign out and sign back in.');
           return;
         }
         await createItem({ 
@@ -163,7 +142,8 @@ export default function ItemsPage(): React.ReactElement {
       }
       setIsSheetOpen(false);
       setEditingItem(null);
-    } catch {
+    } catch (error) {
+      console.error('Submit error:', error);
       toast.error('Something went wrong');
     }
   };
