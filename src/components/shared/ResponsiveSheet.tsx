@@ -1,26 +1,9 @@
 'use client';
 
-import { X } from 'lucide-react';
-
 import type { ReactNode } from 'react';
 
-import { Button } from '@/components/ui/button';
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 
@@ -29,8 +12,6 @@ interface ResponsiveSheetProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   children: ReactNode;
-  footer?: ReactNode;
-  /** Width of side sheet on desktop (default: 550px) */
   width?: number;
 }
 
@@ -39,7 +20,6 @@ export function ResponsiveSheet({
   onOpenChange,
   title,
   children,
-  footer,
   width = 550,
 }: ResponsiveSheetProps): React.ReactElement {
   const isMobile = useIsMobile();
@@ -47,17 +27,11 @@ export function ResponsiveSheet({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
-          <DrawerHeader className="flex items-center justify-between">
+        <DrawerContent className="px-4 pb-6">
+          <DrawerHeader className="px-0">
             <DrawerTitle>{title}</DrawerTitle>
-            <DrawerClose asChild>
-              <Button variant="ghost" size="icon">
-                <X className="size-4" />
-              </Button>
-            </DrawerClose>
           </DrawerHeader>
-          <div className="flex-1 overflow-auto px-4 pb-4">{children}</div>
-          {footer ? <DrawerFooter>{footer}</DrawerFooter> : null}
+          <div className="flex-1 overflow-auto">{children}</div>
         </DrawerContent>
       </Drawer>
     );
@@ -67,18 +41,12 @@ export function ResponsiveSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         style={{ width: `${String(width)}px`, maxWidth: '85vw' }}
-        className="flex flex-col"
+        className="flex flex-col gap-0 p-6"
       >
-        <SheetHeader className="flex flex-row items-center justify-between">
+        <SheetHeader className="mb-6">
           <SheetTitle>{title}</SheetTitle>
-          <SheetClose asChild>
-            <Button variant="ghost" size="icon">
-              <X className="size-4" />
-            </Button>
-          </SheetClose>
         </SheetHeader>
-        <div className="flex-1 overflow-auto py-4">{children}</div>
-        {footer ? <SheetFooter>{footer}</SheetFooter> : null}
+        <div className="flex-1 overflow-auto">{children}</div>
       </SheetContent>
     </Sheet>
   );
