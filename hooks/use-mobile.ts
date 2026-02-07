@@ -15,5 +15,7 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  // Return false during SSR/hydration to avoid mismatch
+  // Will update to true after hydration if viewport is mobile
+  return isMobile ?? false
 }
