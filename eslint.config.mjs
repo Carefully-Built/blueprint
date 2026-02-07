@@ -7,21 +7,9 @@ import importPlugin from 'eslint-plugin-import';
 // Shadcn generated files - these get relaxed rules
 const shadcnPatterns = [
   'components/ui/**',
-  'components/app-sidebar.tsx',
-  'components/chart-*.tsx',
-  'components/data-table.tsx',
-  'components/date-picker.tsx',
-  'components/login-form.tsx',
-  'components/nav-*.tsx',
-  'components/section-cards.tsx',
-  'components/site-header.tsx',
-  'components/example*.tsx',
-  'components/component-example.tsx',
-  'components/calendars.tsx',
-  'components/charts/**',
-  'components/forms/**',
+  'app/**/_components/**',  // Page-specific components (often shadcn blocks)
+  'app/dashboard/page.tsx', // Shadcn dashboard block
   'hooks/use-mobile.ts',
-  'app/dashboard/**', // Shadcn dashboard block
 ];
 
 export default tseslint.config(
@@ -101,7 +89,7 @@ export default tseslint.config(
     },
   },
 
-  // Shadcn components - relaxed (generated code)
+  // Shadcn / generated components - relaxed rules
   {
     files: shadcnPatterns,
     languageOptions: {
@@ -127,8 +115,8 @@ export default tseslint.config(
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-unnecessary-type-conversion': 'off',
       '@typescript-eslint/consistent-type-imports': 'off',
+      '@typescript-eslint/no-unnecessary-type-conversion': 'off',
       'import/order': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',

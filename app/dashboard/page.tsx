@@ -1,14 +1,11 @@
-import data from "./data.json"
+import { AppSidebar } from './_components/app-sidebar';
+import { ChartAreaInteractive } from './_components/chart-area-interactive';
+import { DataTable } from './_components/data-table';
+import { SectionCards } from './_components/section-cards';
+import { SiteHeader } from './_components/site-header';
+import data from './data.json';
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 
 export default function Page() {
@@ -16,8 +13,8 @@ export default function Page() {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
     >
@@ -37,5 +34,5 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

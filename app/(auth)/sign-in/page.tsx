@@ -1,4 +1,4 @@
-import { LoginForm } from '@/components/login-form';
+import { LoginForm } from './_components/login-form';
 
 const SignInPage = (): React.ReactElement => (
   <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">

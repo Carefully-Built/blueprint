@@ -1,11 +1,12 @@
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 
+import type { LayoutProps } from '@/types';
+import type { Metadata, Viewport } from 'next';
+
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { siteConfig } from '@/config/site';
 
-import type { LayoutProps } from '@/types';
-import type { Metadata, Viewport } from 'next';
 
 import './globals.css';
 
