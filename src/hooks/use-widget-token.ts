@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import type { WidgetScopes } from '@/lib/workos-widgets';
 
 interface UseWidgetTokenOptions {
+  /** Required scopes for the widget */
   scopes: WidgetScopes[];
-  organizationId?: string;
+  /** Organization ID (required for most widgets) */
+  organizationId: string;
 }
 
 /**

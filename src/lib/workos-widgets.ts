@@ -2,16 +2,17 @@ import { workos } from './workos';
 import { getSession } from './session';
 
 /**
- * Available widget scopes from WorkOS
+ * Available widget scopes from WorkOS SDK
  */
 export type WidgetScopes = 
   | 'widgets:users-table:manage'
   | 'widgets:sso:manage'
-  | 'widgets:organization-switcher:read';
+  | 'widgets:domain-verification:manage'
+  | 'widgets:api-keys:manage';
 
 interface GetWidgetTokenOptions {
-  /** Organization ID (required for org-scoped widgets) */
-  organizationId?: string;
+  /** Organization ID (required for WorkOS widgets) */
+  organizationId: string;
   /** Required scopes for the widget */
   scopes: WidgetScopes[];
 }
@@ -19,6 +20,8 @@ interface GetWidgetTokenOptions {
 /**
  * Get a widget token for WorkOS widgets.
  * Must be called server-side (Server Component, Server Action, or API Route).
+ * 
+ * Note: organizationId is required. Use the current user's organization.
  * 
  * @example
  * ```ts
@@ -36,22 +39,14 @@ export async function getWidgetToken(options: GetWidgetTokenOptions): Promise<st
     throw new Error('User must be authenticated to get widget token');
   }
 
-  const tokenParams: {
-    userId: string;
-    scopes: string[];
-    organizationId?: string;
-  } = {
+  const result = await workos.widgets.getToken({
+    organizationId: options.organizationId,
     userId: session.user.id,
     scopes: options.scopes,
-  };
+  });
 
-  if (options.organizationId) {
-    tokenParams.organizationId = options.organizationId;
-  }
-
-  const token = await workos.widgets.getToken(tokenParams as any);
-
-  return token;
+  // WorkOS SDK returns the token directly as a string
+  return result as unknown as string;
 }
 
 /**
