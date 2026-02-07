@@ -28,8 +28,8 @@ const LandingPage = (): React.ReactElement => (
           Launching soon
         </Badge>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-          Ship beautiful dashboards
-          <span className="text-primary"> in hours, not weeks</span>
+          Ship beautiful B2B Saas
+          <span className="text-primary"> in hours, not months</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
           Production-ready foundation with auth, payments, real-time data, and stunning UI.

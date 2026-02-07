@@ -1,5 +1,6 @@
 import { AppSidebar } from './_components/app-sidebar';
 import { SiteHeader } from './_components/site-header';
+import { UserSync } from './_components/user-sync';
 
 import type { ReactNode } from 'react';
 
@@ -10,7 +11,9 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps): React.ReactElement {
+export default function DashboardLayout({
+  children,
+}: DashboardLayoutProps): React.ReactElement {
   return (
     <SidebarProvider
       style={
@@ -20,6 +23,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps): Rea
         } as React.CSSProperties
       }
     >
+      <UserSync />
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />

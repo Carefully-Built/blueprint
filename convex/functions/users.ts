@@ -19,12 +19,12 @@ export const getById = query({
   },
 });
 
-export const getByClerkId = query({
-  args: { clerkId: v.string() },
+export const getByWorkosId = query({
+  args: { workosId: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', args.clerkId))
+      .withIndex('by_workos_id', (q) => q.eq('workosId', args.workosId))
       .first();
   },
 });
@@ -88,6 +88,45 @@ export const remove = mutation({
 });
 
 // ----------------------------------------------------------
+// SYNC (WorkOS)
+// ----------------------------------------------------------
+
+export const syncFromWorkOS = mutation({
+  args: createUserValidator,
+  handler: async (ctx, args) => {
+    // Check if user exists by WorkOS ID
+    const existingUser = await ctx.db
+      .query('users')
+      .withIndex('by_workos_id', (q) => q.eq('workosId', args.workosId))
+      .first();
+
+    const now = Date.now();
+
+    if (existingUser) {
+      // Update existing user
+      await ctx.db.patch(existingUser._id, {
+        email: args.email,
+        name: args.name,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        imageUrl: args.imageUrl,
+        organizationId: args.organizationId,
+        role: args.role,
+        updatedAt: now,
+      });
+      return existingUser._id;
+    } else {
+      // Create new user
+      return await ctx.db.insert('users', {
+        ...args,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+  },
+});
+
+// ----------------------------------------------------------
 // API OBJECT
 // Use this for a quick overview of all available functions
 // ----------------------------------------------------------
@@ -95,12 +134,13 @@ export const remove = mutation({
 export const UsersAPI = {
   // Queries
   getById,
-  getByClerkId,
+  getByWorkosId,
   getByEmail,
   listByOrganization,
-  
+
   // Mutations
   create,
   update,
   remove,
+  syncFromWorkOS,
 } as const;

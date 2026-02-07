@@ -46,7 +46,7 @@ export function ResponsiveSheet({
         <SheetHeader className="mb-6">
           <SheetTitle>{title}</SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-auto">{children}</div>
+        <div className="flex-1 overflow-auto overflow-x-visible">{children}</div>
       </SheetContent>
     </Sheet>
   );

@@ -6,23 +6,25 @@ import { v } from 'convex/values';
 // ============================================================
 
 export const usersTable = defineTable({
-  // Auth
-  clerkId: v.string(),
+  // Auth (WorkOS)
+  workosId: v.string(), // WorkOS user ID
   email: v.string(),
-  
+
   // Profile
   name: v.optional(v.string()),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
   imageUrl: v.optional(v.string()),
-  
+
   // Organization
-  organizationId: v.optional(v.string()),
+  organizationId: v.optional(v.string()), // WorkOS organization ID
   role: v.union(v.literal('admin'), v.literal('member'), v.literal('viewer')),
-  
+
   // Timestamps
   createdAt: v.number(),
   updatedAt: v.number(),
 })
-  .index('by_clerk_id', ['clerkId'])
+  .index('by_workos_id', ['workosId'])
   .index('by_email', ['email'])
   .index('by_organization', ['organizationId']);
 
@@ -37,9 +39,11 @@ export const userRoleValidator = v.union(
 );
 
 export const createUserValidator = v.object({
-  clerkId: v.string(),
+  workosId: v.string(),
   email: v.string(),
   name: v.optional(v.string()),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
   imageUrl: v.optional(v.string()),
   organizationId: v.optional(v.string()),
   role: userRoleValidator,
@@ -47,6 +51,8 @@ export const createUserValidator = v.object({
 
 export const updateUserValidator = v.object({
   name: v.optional(v.string()),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
   imageUrl: v.optional(v.string()),
   organizationId: v.optional(v.string()),
   role: v.optional(userRoleValidator),

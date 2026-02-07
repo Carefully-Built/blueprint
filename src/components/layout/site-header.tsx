@@ -1,0 +1,29 @@
+import Link from 'next/link';
+
+import { MainNav } from './main-nav';
+import { MobileNav } from './mobile-nav';
+
+import { Button } from '@/components/ui/button';
+import { landingNav } from '@/config/site';
+
+export function SiteHeader(): React.ReactElement {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          <MobileNav items={landingNav} />
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <span className="text-xl">Blueprint</span>
+          </Link>
+        </div>
+
+        <div className="hidden items-center gap-6 md:flex">
+          <MainNav items={landingNav} />
+          <Button asChild>
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+}

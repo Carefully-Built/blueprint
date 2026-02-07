@@ -20,16 +20,16 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { signIn } from '../../actions';
+import { signUp } from '../../actions';
 
-export function LoginForm({
+export function SignUpForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     async (_prevState: any, formData: FormData) => {
-      const result = await signIn(formData);
+      const result = await signUp(formData);
       if (result.success) {
         router.push('/dashboard');
         return result;
@@ -43,14 +43,40 @@ export function LoginForm({
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardTitle className="text-xl">Create an account</CardTitle>
           <CardDescription>
-            Sign in to your account to continue
+            Enter your details to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction}>
             <FieldGroup>
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="firstName">First name</FieldLabel>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    placeholder="John"
+                    required
+                    autoComplete="given-name"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    required
+                    autoComplete="family-name"
+                  />
+                </Field>
+              </div>
+
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -64,22 +90,18 @@ export function LoginForm({
               </Field>
 
               <Field>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                  minLength={8}
                 />
+                <FieldDescription>
+                  Must be at least 8 characters
+                </FieldDescription>
               </Field>
 
               {state?.error && (
@@ -90,13 +112,13 @@ export function LoginForm({
 
               <Field>
                 <Button type="submit" className="w-full" disabled={isPending}>
-                  {isPending ? 'Signing in...' : 'Sign in'}
+                  {isPending ? 'Creating account...' : 'Create account'}
                 </Button>
 
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account?{' '}
-                  <Link href="/sign-up" className="underline">
-                    Sign up
+                  Already have an account?{' '}
+                  <Link href="/sign-in" className="underline">
+                    Sign in
                   </Link>
                 </FieldDescription>
               </Field>
