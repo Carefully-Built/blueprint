@@ -1,69 +1,46 @@
 'use client';
 
-import { useActionState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { FormProvider } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-import { signUp } from '../../../actions';
+import { CustomInputField, CustomPasswordField } from '@/components/forms';
+import { useSignupForm } from '@/hooks/use-signup-form';
 
 export function SignUpWithEmailForm(): React.ReactElement {
-  const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  
-  const [state, formAction, isPending] = useActionState(
-    async (_prevState: unknown, formData: FormData) => {
-      const result = await signUp(formData);
-      if (result.success) {
-        router.push('/dashboard');
-      }
-      return result;
-    },
-    { success: false, error: undefined }
-  );
-
-  // Clear password field on error for security
-  useEffect(() => {
-    if (state?.error && passwordRef.current) {
-      passwordRef.current.value = '';
-    }
-  }, [state?.error]);
+  const { form, onSubmit, loading, error } = useSignupForm();
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-3">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          autoComplete="email"
-          id="email"
+    <FormProvider {...form}>
+      <form 
+        className="space-y-3" 
+        onSubmit={(e): void => { void form.handleSubmit(onSubmit)(e); }}
+      >
+        <CustomInputField
           name="email"
+          label="Email"
           placeholder="you@example.com"
-          required
           type="email"
+          disabled={loading}
         />
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          ref={passwordRef}
-          autoComplete="new-password"
-          id="password"
+        <CustomPasswordField
           name="password"
+          label="Password"
           placeholder="At least 8 characters"
-          required
-          type="password"
+          autoComplete="new-password"
+          disabled={loading}
         />
-      </div>
 
-      {state?.error && <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{state.error}</div>}
+        {error && (
+          <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
-      <Button className="w-full" disabled={isPending} type="submit">
-        {isPending ? 'Creating account...' : 'Sign up'}
-      </Button>
-    </form>
+        <Button className="w-full" disabled={loading} type="submit">
+          {loading ? 'Creating account...' : 'Sign up'}
+        </Button>
+      </form>
+    </FormProvider>
   );
 }
