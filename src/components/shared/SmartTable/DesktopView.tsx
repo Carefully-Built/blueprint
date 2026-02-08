@@ -34,6 +34,7 @@ interface DesktopViewProps<T> {
   pagination?: PaginationConfig;
   stickyHeader?: boolean;
   maxHeight?: string;
+  fullHeight?: boolean;
 }
 
 const ActionIcons: Record<ActionType, typeof Eye> = {
@@ -56,6 +57,7 @@ export function DesktopView<T>({
   pagination,
   stickyHeader = false,
   maxHeight = 'calc(100vh - 300px)',
+  fullHeight = false,
 }: DesktopViewProps<T>): React.ReactElement {
   const hasActions = (actions?.length ?? 0) > 0 || renderActions !== undefined;
 
@@ -124,13 +126,17 @@ export function DesktopView<T>({
     </TableHeader>
   );
 
+  // Determine scrollable container styles
+  const scrollContainerClass = cn(
+    fullHeight && 'flex-1 min-h-0 overflow-auto',
+    !fullHeight && stickyHeader && 'overflow-auto'
+  );
+  const scrollContainerStyle = !fullHeight && stickyHeader ? { maxHeight } : undefined;
+
   if (isLoading) {
     return (
-      <div className="flex flex-col">
-        <div
-          className={cn(stickyHeader && 'overflow-auto')}
-          style={stickyHeader ? { maxHeight } : undefined}
-        >
+      <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+        <div className={scrollContainerClass} style={scrollContainerStyle}>
           <Table>
             {tableHeader}
             <TableBody>
@@ -168,8 +174,8 @@ export function DesktopView<T>({
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col">
-        <div className="flex h-32 items-center justify-center text-muted-foreground">
+      <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+        <div className={cn('flex items-center justify-center text-muted-foreground', fullHeight ? 'flex-1' : 'h-32')}>
           {noDataMessage}
         </div>
         {pagination && pagination.totalItems > 0 && (
@@ -188,11 +194,8 @@ export function DesktopView<T>({
   }
 
   return (
-    <div className="flex flex-col">
-      <div
-        className={cn(stickyHeader && 'overflow-auto')}
-        style={stickyHeader ? { maxHeight } : undefined}
-      >
+    <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+      <div className={scrollContainerClass} style={scrollContainerStyle}>
         <Table>
           {tableHeader}
           <TableBody>

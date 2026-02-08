@@ -28,6 +28,7 @@ export function SmartTable<T>({
   pagination,
   stickyHeader,
   maxHeight,
+  fullHeight,
 }: SmartTableProps<T>): React.ReactElement {
   const isMobile = useIsMobile();
 
@@ -46,6 +47,7 @@ export function SmartTable<T>({
         onRowClick={onRowClick}
         renderMobileCard={renderMobileCard}
         pagination={pagination}
+        fullHeight={fullHeight}
       />
     );
   }
@@ -65,6 +67,7 @@ export function SmartTable<T>({
       pagination={pagination}
       stickyHeader={stickyHeader}
       maxHeight={maxHeight}
+      fullHeight={fullHeight}
     />
   );
 }

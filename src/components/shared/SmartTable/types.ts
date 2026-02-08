@@ -71,4 +71,6 @@ export interface SmartTableProps<T> {
   stickyHeader?: boolean;
   /** Max height for scrollable table (default: 'calc(100vh - 300px)') */
   maxHeight?: string;
+  /** Fill remaining height of parent container (requires parent with flex and height set) */
+  fullHeight?: boolean;
 }

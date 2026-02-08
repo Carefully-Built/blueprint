@@ -215,8 +215,8 @@ export default function ItemsPage(): React.ReactElement {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.8))] md:h-[calc(100vh-theme(spacing.12))] flex-col gap-6">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Items</h1>
         </div>
@@ -232,26 +232,28 @@ export default function ItemsPage(): React.ReactElement {
         </div>
       </div>
 
-      <TableToolbar
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: 'Search items...',
-        }}
-        filters={[
-          {
-            config: STATUS_FILTER,
-            value: filters['status'] ?? 'all',
-            onChange: (v) => setFilter('status', v),
-          },
-          {
-            config: PRIORITY_FILTER,
-            value: filters['priority'] ?? 'all',
-            onChange: (v) => setFilter('priority', v),
-          },
-        ]}
-        onClearAll={clearAll}
-      />
+      <div className="shrink-0">
+        <TableToolbar
+          search={{
+            value: search,
+            onChange: setSearch,
+            placeholder: 'Search items...',
+          }}
+          filters={[
+            {
+              config: STATUS_FILTER,
+              value: filters['status'] ?? 'all',
+              onChange: (v) => setFilter('status', v),
+            },
+            {
+              config: PRIORITY_FILTER,
+              value: filters['priority'] ?? 'all',
+              onChange: (v) => setFilter('priority', v),
+            },
+          ]}
+          onClearAll={clearAll}
+        />
+      </div>
 
       <SmartTable
         data={paginatedData}
@@ -261,6 +263,7 @@ export default function ItemsPage(): React.ReactElement {
         actionHandlers={actionHandlers}
         noDataMessage={search || filters['status'] || filters['priority'] ? 'No matching items' : 'No items found'}
         stickyHeader
+        fullHeight
         pagination={{
           currentPage: pagination.currentPage,
           totalPages: pagination.totalPages,

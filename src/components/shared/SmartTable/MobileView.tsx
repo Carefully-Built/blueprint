@@ -11,6 +11,7 @@ import { Pagination } from '@/components/shared/Pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface MobileViewProps<T> {
   data: T[];
@@ -25,6 +26,7 @@ interface MobileViewProps<T> {
   onRowClick?: (item: T) => void;
   renderMobileCard?: (item: T) => ReactNode;
   pagination?: PaginationConfig;
+  fullHeight?: boolean;
 }
 
 const ActionIcons: Record<ActionType, typeof Eye> = {
@@ -46,6 +48,7 @@ export function MobileView<T>({
   onRowClick,
   renderMobileCard,
   pagination,
+  fullHeight = false,
 }: MobileViewProps<T>): React.ReactElement {
   const visibleColumns = columns.filter((col) => !col.hideOnMobile);
   const hasActions = (actions?.length ?? 0) > 0 || renderActions !== undefined;
@@ -112,8 +115,8 @@ export function MobileView<T>({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col">
-        <div className="space-y-3">
+      <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+        <div className={cn('space-y-3', fullHeight && 'flex-1 min-h-0 overflow-auto')}>
           {Array.from({ length: skeletonRows }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-4">
@@ -133,8 +136,8 @@ export function MobileView<T>({
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col">
-        <div className="flex h-32 items-center justify-center text-muted-foreground">
+      <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+        <div className={cn('flex items-center justify-center text-muted-foreground', fullHeight ? 'flex-1' : 'h-32')}>
           {noDataMessage}
         </div>
         {pagination && pagination.totalItems > 0 && paginationComponent}
@@ -143,8 +146,8 @@ export function MobileView<T>({
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="space-y-3">
+    <div className={cn('flex flex-col', fullHeight && 'flex-1 min-h-0')}>
+      <div className={cn('space-y-3', fullHeight && 'flex-1 min-h-0 overflow-auto')}>
         {data.map((item) => (
           <Card
             key={getRowKey(item)}
