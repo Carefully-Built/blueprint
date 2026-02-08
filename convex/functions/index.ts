@@ -16,4 +16,5 @@
 
 export * as users from './users/index';
 export * as items from './items/index';
+export * as files from './files/index';
 export * as organizations from './organizations/index';

@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, ListTodo, Files, Settings, ChevronLeft, ChevronRight, LogOut, Menu, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -54,6 +54,7 @@ interface NavItem {
 const navItems: readonly NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Items", href: "/dashboard/items", icon: ListTodo },
+  { title: "Files", href: "/dashboard/files", icon: Files },
 ] as const
 
 const bottomNavItems: readonly NavItem[] = [
