@@ -21,12 +21,12 @@ interface SelectOption {
 }
 
 interface CustomSelectFieldProps<TValues extends FieldValues> {
-  name: Path<TValues>;
-  label?: string;
-  placeholder?: string;
-  options: SelectOption[];
-  disabled?: boolean;
-  className?: string;
+  readonly name: Path<TValues>;
+  readonly label?: string;
+  readonly placeholder?: string;
+  readonly options: readonly SelectOption[];
+  readonly disabled?: boolean;
+  readonly className?: string;
 }
 
 export function CustomSelectField<TValues extends FieldValues>({

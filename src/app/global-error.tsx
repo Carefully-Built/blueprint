@@ -4,8 +4,8 @@
 // This is the fallback when the entire app crashes
 
 interface GlobalErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
+  readonly error: Error & { digest?: string };
+  readonly reset: () => void;
 }
 
 const GlobalError = ({ error, reset }: GlobalErrorProps): React.ReactElement => (

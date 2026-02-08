@@ -4,7 +4,7 @@ echo "🚀 Setting up Blueprint with WorkOS + Convex..."
 echo ""
 
 # Check if .env exists
-if [ ! -f .env ]; then
+if [[ ! -f .env ]]; then
   echo "❌ .env file not found!"
   echo "Creating .env from .env.example..."
   cp .env.example .env

@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 
 
 interface OrgSwitcherProps {
-  authToken: string;
-  onSwitch?: (orgId: string) => void;
-  children?: React.ReactNode;
-  organizationLabel?: string | null;
+  readonly authToken: string;
+  readonly onSwitch?: (orgId: string) => void;
+  readonly children?: React.ReactNode;
+  readonly organizationLabel?: string | null;
 }
 
 export function OrgSwitcher({
@@ -33,7 +33,7 @@ export function OrgSwitcher({
     const data = (await response.json()) as { redirectUrl?: string };
 
     if (data.redirectUrl) {
-      window.location.href = data.redirectUrl;
+      globalThis.location.href = data.redirectUrl;
       return;
     }
 

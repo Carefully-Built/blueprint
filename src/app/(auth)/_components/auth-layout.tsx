@@ -3,9 +3,9 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 interface AuthLayoutProps {
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly children: ReactNode;
 }
 
 export function AuthLayout({ title, subtitle, children }: AuthLayoutProps): React.ReactElement {

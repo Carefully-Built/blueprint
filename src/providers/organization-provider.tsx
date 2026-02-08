@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 import type { ReactNode } from 'react';
 
@@ -13,8 +13,8 @@ interface OrganizationContextValue {
 const OrganizationContext = createContext<OrganizationContextValue | null>(null);
 
 interface OrganizationProviderProps {
-  children: ReactNode;
-  initialOrganizationId?: string;
+  readonly children: ReactNode;
+  readonly initialOrganizationId?: string;
 }
 
 export function OrganizationProvider({
@@ -44,16 +44,20 @@ export function OrganizationProvider({
       refreshOrganization();
     };
 
-    window.addEventListener('org-updated', handleOrgUpdate);
+    globalThis.addEventListener('org-updated', handleOrgUpdate);
     return (): void => {
-      window.removeEventListener('org-updated', handleOrgUpdate);
+      globalThis.removeEventListener('org-updated', handleOrgUpdate);
     };
   }, [refreshOrganization]);
 
+  const contextValue = useMemo(() => ({
+    organizationId,
+    setOrganizationId,
+    refreshOrganization,
+  }), [organizationId, setOrganizationId, refreshOrganization]);
+
   return (
-    <OrganizationContext.Provider
-      value={{ organizationId, setOrganizationId, refreshOrganization }}
-    >
+    <OrganizationContext.Provider value={contextValue}>
       {children}
     </OrganizationContext.Provider>
   );

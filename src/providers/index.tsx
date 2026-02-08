@@ -12,7 +12,7 @@ export { UserProvider, useUser } from './user-provider';
 export type { UserData } from './user-provider';
 
 interface ProvidersProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export const Providers = ({ children }: ProvidersProps): React.ReactElement => (

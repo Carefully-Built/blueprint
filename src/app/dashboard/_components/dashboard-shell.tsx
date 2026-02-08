@@ -7,7 +7,11 @@ import { useSyncUser, type WorkOSUser } from '@/hooks/use-sync-user';
 
 import type { UserData } from '@/providers';
 
-function MainContent({ children }: { children: React.ReactNode }) {
+interface MainContentProps {
+  readonly children: React.ReactNode;
+}
+
+function MainContent({ children }: MainContentProps): React.ReactElement {
   const { isCollapsed } = useSidebar();
   
   return (
@@ -27,11 +31,11 @@ function MainContent({ children }: { children: React.ReactNode }) {
 }
 
 interface DashboardShellProps {
-  children: React.ReactNode;
-  user: WorkOSUser & UserData;
+  readonly children: React.ReactNode;
+  readonly user: WorkOSUser & UserData;
 }
 
-export function DashboardShell({ children, user }: DashboardShellProps) {
+export function DashboardShell({ children, user }: DashboardShellProps): React.ReactElement {
   useSyncUser(user);
 
   const userData: UserData = {

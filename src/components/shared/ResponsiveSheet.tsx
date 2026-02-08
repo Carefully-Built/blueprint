@@ -8,11 +8,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 
 interface ResponsiveSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  children: ReactNode;
-  width?: number;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly width?: number;
 }
 
 export function ResponsiveSheet({

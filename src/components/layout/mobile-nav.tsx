@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/sheet';
 
 interface MobileNavProps {
-  items: NavItem[];
+  readonly items: readonly NavItem[];
 }
 
 export function MobileNav({ items }: MobileNavProps): React.ReactElement {

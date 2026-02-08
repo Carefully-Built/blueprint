@@ -17,10 +17,10 @@ const itemSchema = z.object({
 type ItemFormValues = z.infer<typeof itemSchema>;
 
 interface ItemFormProps {
-  defaultValues?: Partial<ItemFormValues>;
-  onSubmit: (data: ItemFormValues) => void;
-  onCancel: () => void;
-  isLoading?: boolean;
+  readonly defaultValues?: Partial<ItemFormValues>;
+  readonly onSubmit: (data: ItemFormValues) => void;
+  readonly onCancel: () => void;
+  readonly isLoading?: boolean;
 }
 
 const statusOptions = [

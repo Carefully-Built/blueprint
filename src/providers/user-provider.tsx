@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 import type { ReactNode } from 'react';
 
@@ -24,8 +24,8 @@ interface UserContextValue {
 const UserContext = createContext<UserContextValue | null>(null);
 
 interface UserProviderProps {
-  children: ReactNode;
-  initialUser: UserData | null;
+  readonly children: ReactNode;
+  readonly initialUser: UserData | null;
 }
 
 export function UserProvider({
@@ -39,11 +39,18 @@ export function UserProvider({
   }, []);
 
   const refreshUser = useCallback((): void => {
-    window.dispatchEvent(new CustomEvent('user-updated'));
+    globalThis.dispatchEvent(new CustomEvent('user-updated'));
   }, []);
 
+  const contextValue = useMemo(() => ({
+    user,
+    setUser,
+    updateUser,
+    refreshUser,
+  }), [user, setUser, updateUser, refreshUser]);
+
   return (
-    <UserContext.Provider value={{ user, setUser, updateUser, refreshUser }}>
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

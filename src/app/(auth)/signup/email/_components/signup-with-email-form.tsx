@@ -19,7 +19,6 @@ export function SignUpWithEmailForm(): React.ReactElement {
       const result = await signUp(formData);
       if (result.success) {
         router.push('/dashboard');
-        return result;
       }
       return result;
     },

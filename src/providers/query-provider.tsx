@@ -6,7 +6,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface QueryProviderProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export const QueryProvider = ({

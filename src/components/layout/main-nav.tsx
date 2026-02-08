@@ -5,8 +5,8 @@ import type { NavItem } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface MainNavProps {
-  items: NavItem[];
-  className?: string;
+  readonly items: readonly NavItem[];
+  readonly className?: string;
 }
 
 export function MainNav({ items, className }: MainNavProps): React.ReactElement {

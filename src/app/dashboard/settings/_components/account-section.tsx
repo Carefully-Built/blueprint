@@ -30,9 +30,9 @@ export function AccountSection(): React.ReactElement {
   }, [router]);
 
   useEffect(() => {
-    window.addEventListener('user-updated', handleUserUpdate);
+    globalThis.addEventListener('user-updated', handleUserUpdate);
     return (): void => {
-      window.removeEventListener('user-updated', handleUserUpdate);
+      globalThis.removeEventListener('user-updated', handleUserUpdate);
     };
   }, [handleUserUpdate]);
 

@@ -17,8 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface CreateOrganizationProps {
-  children?: React.ReactNode;
-  onCreated?: (orgId: string) => void;
+  readonly children?: React.ReactNode;
+  readonly onCreated?: (orgId: string) => void;
 }
 
 export function CreateOrganization({ children, onCreated }: CreateOrganizationProps): React.ReactElement {

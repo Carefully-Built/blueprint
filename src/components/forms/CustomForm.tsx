@@ -8,12 +8,12 @@ import type { DefaultValues, FieldValues, SubmitHandler, UseFormReturn } from 'r
 import type { z } from 'zod';
 
 interface CustomFormProps<T extends FieldValues> {
-  schema: z.ZodType<T>;
-  defaultValues: DefaultValues<T>;
-  onSubmit: SubmitHandler<T>;
-  children: ReactNode | ((methods: UseFormReturn<T>) => ReactNode);
-  id?: string;
-  className?: string;
+  readonly schema: z.ZodType<T>;
+  readonly defaultValues: DefaultValues<T>;
+  readonly onSubmit: SubmitHandler<T>;
+  readonly children: ReactNode | ((methods: UseFormReturn<T>) => ReactNode);
+  readonly id?: string;
+  readonly className?: string;
 }
 
 export function CustomForm<T extends FieldValues>({

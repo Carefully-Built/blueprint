@@ -4,7 +4,7 @@ import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut,
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState, createContext, useContext, useEffect } from "react"
+import { useState, createContext, useContext, useEffect, useMemo, useCallback } from "react"
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -24,14 +24,16 @@ import { useUser } from "@/providers"
 const SIDEBAR_WIDTH = 220
 const SIDEBAR_COLLAPSED_WIDTH = 56
 
-// Context to share sidebar state with layout
-export const SidebarContext = createContext<{
+interface SidebarContextValue {
   isCollapsed: boolean
   setIsCollapsed: (v: boolean) => void
   isMobileOpen: boolean
   setIsMobileOpen: (v: boolean) => void
   refreshOrg: () => void
-}>({ 
+}
+
+// Context to share sidebar state with layout
+export const SidebarContext = createContext<SidebarContextValue>({ 
   isCollapsed: false, 
   setIsCollapsed: () => undefined, 
   isMobileOpen: false,
@@ -39,67 +41,115 @@ export const SidebarContext = createContext<{
   refreshOrg: () => undefined 
 })
 
-export function useSidebar() {
+export function useSidebar(): SidebarContextValue {
   return useContext(SidebarContext)
 }
 
-const navItems = [
+interface NavItem {
+  title: string
+  href: string
+  icon: typeof LayoutDashboard
+}
+
+const navItems: readonly NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Items", href: "/dashboard/items", icon: ListTodo },
-]
+] as const
 
-const bottomNavItems = [
+const bottomNavItems: readonly NavItem[] = [
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
-]
+] as const
 
-export function AppSidebar() {
-  const pathname = usePathname()
-  const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
-  const { user } = useUser()
+// Extracted NavLink component
+interface NavLinkProps {
+  readonly item: NavItem
+  readonly isCollapsed: boolean
+  readonly pathname: string
+  readonly onNavClick: () => void
+}
 
-  const handleSignOut = async () => {
-    await signOutAction();
-  }
+function NavLink({ item, isCollapsed, pathname, onNavClick }: NavLinkProps): React.ReactElement {
+  const isActive = pathname === item.href
+  const Icon = item.icon
 
-  const handleNavClick = () => {
-    // Close mobile drawer on navigation
-    setIsMobileOpen(false)
-  }
+  const content = (
+    <Link
+      href={item.href}
+      onClick={onNavClick}
+      className={cn(
+        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+        isActive 
+          ? "bg-accent text-accent-foreground" 
+          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+        isCollapsed && "justify-center px-2"
+      )}
+    >
+      <Icon className="size-4 shrink-0" />
+      {!isCollapsed && <span>{item.title}</span>}
+    </Link>
+  )
 
-  const NavLink = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = pathname === item.href
-    const Icon = item.icon
-
-    const content = (
-      <Link
-        href={item.href}
-        onClick={handleNavClick}
-        className={cn(
-          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
-          isActive 
-            ? "bg-accent text-accent-foreground" 
-            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-          isCollapsed && "justify-center px-2"
-        )}
-      >
-        <Icon className="size-4 shrink-0" />
-        {!isCollapsed && <span>{item.title}</span>}
-      </Link>
+  if (isCollapsed) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right">{item.title}</TooltipContent>
+      </Tooltip>
     )
-
-    if (isCollapsed) {
-      return (
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>{content}</TooltipTrigger>
-          <TooltipContent side="right">{item.title}</TooltipContent>
-        </Tooltip>
-      )
-    }
-
-    return content
   }
 
-  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  return content
+}
+
+// Extracted MobileNavLink component
+interface MobileNavLinkProps {
+  readonly item: NavItem
+  readonly pathname: string
+  readonly onNavClick: () => void
+}
+
+function MobileNavLink({ item, pathname, onNavClick }: MobileNavLinkProps): React.ReactElement {
+  const isActive = pathname === item.href
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavClick}
+      className={cn(
+        "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+        isActive
+          ? "bg-accent text-accent-foreground" 
+          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+      )}
+    >
+      <item.icon className="size-4 shrink-0" />
+      <span>{item.title}</span>
+    </Link>
+  )
+}
+
+// Extracted SidebarContent component
+interface SidebarContentProps {
+  readonly isMobile?: boolean
+  readonly isCollapsed: boolean
+  readonly setIsCollapsed: (v: boolean) => void
+  readonly setIsMobileOpen: (v: boolean) => void
+  readonly pathname: string
+  readonly user: { name?: string; email?: string; imageUrl?: string } | null
+  readonly onSignOut: () => void
+  readonly onNavClick: () => void
+}
+
+function SidebarContent({
+  isMobile = false,
+  isCollapsed,
+  setIsCollapsed,
+  setIsMobileOpen,
+  pathname,
+  user,
+  onSignOut,
+  onNavClick,
+}: SidebarContentProps): React.ReactElement {
+  return (
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className={cn(
@@ -119,7 +169,7 @@ export function AppSidebar() {
           </Button>
         ) : (
           <>
-            <Link href="/dashboard" className="flex items-center gap-2 min-w-0 flex-1" onClick={handleNavClick}>
+            <Link href="/dashboard" className="flex items-center gap-2 min-w-0 flex-1" onClick={onNavClick}>
               <Image
                 src="/images/blue_logo.svg"
                 alt="Blueprint"
@@ -161,22 +211,20 @@ export function AppSidebar() {
       <nav className="flex-1 space-y-0.5 px-2 overflow-y-auto">
         {navItems.map((item) => (
           isMobile ? (
-            <Link
+            <MobileNavLink
               key={item.href}
-              href={item.href}
-              onClick={handleNavClick}
-              className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-accent text-accent-foreground" 
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              )}
-            >
-              <item.icon className="size-4 shrink-0" />
-              <span>{item.title}</span>
-            </Link>
+              item={item}
+              pathname={pathname}
+              onNavClick={onNavClick}
+            />
           ) : (
-            <NavLink key={item.href} item={item} />
+            <NavLink
+              key={item.href}
+              item={item}
+              isCollapsed={isCollapsed}
+              pathname={pathname}
+              onNavClick={onNavClick}
+            />
           )
         ))}
       </nav>
@@ -185,22 +233,20 @@ export function AppSidebar() {
       <div className="px-2 py-2 space-y-0.5">
         {bottomNavItems.map((item) => (
           isMobile ? (
-            <Link
+            <MobileNavLink
               key={item.href}
-              href={item.href}
-              onClick={handleNavClick}
-              className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-accent text-accent-foreground" 
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              )}
-            >
-              <item.icon className="size-4 shrink-0" />
-              <span>{item.title}</span>
-            </Link>
+              item={item}
+              pathname={pathname}
+              onNavClick={onNavClick}
+            />
           ) : (
-            <NavLink key={item.href} item={item} />
+            <NavLink
+              key={item.href}
+              item={item}
+              isCollapsed={isCollapsed}
+              pathname={pathname}
+              onNavClick={onNavClick}
+            />
           )
         ))}
       </div>
@@ -214,18 +260,18 @@ export function AppSidebar() {
           <Avatar className="size-7 shrink-0">
             <AvatarImage src={user?.imageUrl} />
             <AvatarFallback className="text-xs">
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
             </AvatarFallback>
           </Avatar>
           {(!isCollapsed || isMobile) && (
             <>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate leading-tight">{user?.name || 'Loading...'}</p>
-                <p className="text-xs text-muted-foreground truncate leading-tight">{user?.email || ''}</p>
+                <p className="text-sm font-medium truncate leading-tight">{user?.name ?? 'Loading...'}</p>
+                <p className="text-xs text-muted-foreground truncate leading-tight">{user?.email ?? ''}</p>
               </div>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={() => { void handleSignOut() }}>
+                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={onSignOut}>
                     <LogOut className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
@@ -237,6 +283,21 @@ export function AppSidebar() {
       </div>
     </div>
   )
+}
+
+export function AppSidebar(): React.ReactElement {
+  const pathname = usePathname()
+  const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
+  const { user } = useUser()
+
+  const handleSignOut = useCallback((): void => {
+    void signOutAction()
+  }, [])
+
+  const handleNavClick = useCallback((): void => {
+    // Close mobile drawer on navigation
+    setIsMobileOpen(false)
+  }, [setIsMobileOpen])
 
   return (
     <>
@@ -256,7 +317,7 @@ export function AppSidebar() {
               <Avatar className="size-8">
                 <AvatarImage src={user?.imageUrl} />
                 <AvatarFallback className="text-xs">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -266,12 +327,12 @@ export function AppSidebar() {
               <Avatar className="size-8">
                 <AvatarImage src={user?.imageUrl} />
                 <AvatarFallback className="text-xs">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.name || 'User'}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
+                <p className="text-sm font-medium truncate">{user?.name ?? 'User'}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email ?? ''}</p>
               </div>
             </div>
             <DropdownMenuSeparator />
@@ -284,7 +345,7 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               variant="destructive"
-              onClick={() => { void handleSignOut() }}
+              onClick={handleSignOut}
               className="cursor-pointer"
             >
               <LogOut className="size-4 mr-2" />
@@ -297,12 +358,23 @@ export function AppSidebar() {
       {/* Mobile Drawer */}
       {isMobileOpen && (
         <>
-          <div 
+          <button 
+            type="button"
             className="fixed inset-0 z-50 bg-black/50 md:hidden"
             onClick={() => setIsMobileOpen(false)}
+            aria-label="Close sidebar"
           />
           <aside className="fixed inset-y-0 left-0 z-50 w-full max-w-xs border-r bg-background md:hidden">
-            <SidebarContent isMobile />
+            <SidebarContent
+              isMobile
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
+              setIsMobileOpen={setIsMobileOpen}
+              pathname={pathname}
+              user={user}
+              onSignOut={handleSignOut}
+              onNavClick={handleNavClick}
+            />
           </aside>
         </>
       )}
@@ -314,14 +386,26 @@ export function AppSidebar() {
         )}
         style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
       >
-        <SidebarContent />
+        <SidebarContent
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          setIsMobileOpen={setIsMobileOpen}
+          pathname={pathname}
+          user={user}
+          onSignOut={handleSignOut}
+          onNavClick={handleNavClick}
+        />
       </aside>
     </>
   )
 }
 
 // Provider component
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
+interface SidebarProviderProps {
+  readonly children: React.ReactNode
+}
+
+export function SidebarProvider({ children }: SidebarProviderProps): React.ReactElement {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   
@@ -330,12 +414,20 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setIsMobileOpen(false)
   }, [])
   
-  const refreshOrg = () => {
-    window.dispatchEvent(new CustomEvent('org-updated'));
-  }
+  const refreshOrg = useCallback((): void => {
+    globalThis.dispatchEvent(new CustomEvent('org-updated'))
+  }, [])
+
+  const contextValue = useMemo<SidebarContextValue>(() => ({
+    isCollapsed,
+    setIsCollapsed,
+    isMobileOpen,
+    setIsMobileOpen,
+    refreshOrg,
+  }), [isCollapsed, isMobileOpen, refreshOrg])
   
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, refreshOrg }}>
+    <SidebarContext.Provider value={contextValue}>
       {children}
     </SidebarContext.Provider>
   )

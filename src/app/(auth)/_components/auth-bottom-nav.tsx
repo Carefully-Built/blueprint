@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
 interface AuthBottomNavProps {
-  text: string;
-  linkText: string;
-  linkPath: string;
+  readonly text: string;
+  readonly linkText: string;
+  readonly linkPath: string;
 }
 
 export function AuthBottomNav({ text, linkText, linkPath }: AuthBottomNavProps): React.ReactElement {

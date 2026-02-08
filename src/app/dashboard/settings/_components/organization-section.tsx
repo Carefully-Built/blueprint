@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { OrganizationCard } from './organization-card';
 
 interface OrganizationSectionProps {
-  organization: {
-    id: string;
-    name: string;
-    role: string;
+  readonly organization: {
+    readonly id: string;
+    readonly name: string;
+    readonly role: string;
   };
-  teamAuthToken: string | null;
+  readonly teamAuthToken: string | null;
 }
 
 export function OrganizationSection({ 

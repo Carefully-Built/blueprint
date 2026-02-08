@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 };
 
 interface RootLayoutProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 const RootLayout = ({ children }: RootLayoutProps): React.ReactElement => (

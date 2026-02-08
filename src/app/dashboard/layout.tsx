@@ -9,7 +9,7 @@ import { workos } from '@/lib/workos';
 
 
 interface DashboardLayoutProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export default async function DashboardLayout({ children }: DashboardLayoutProps): Promise<React.ReactElement> {

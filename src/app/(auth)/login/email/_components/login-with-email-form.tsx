@@ -17,7 +17,6 @@ export function LoginWithEmailForm(): React.ReactElement {
       const result = await signIn(formData);
       if (result.success) {
         router.push('/dashboard');
-        return result;
       }
       return result;
     },

@@ -5,20 +5,20 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 export interface SocialProvider {
-  name: string;
-  icon: string;
-  action: () => Promise<string>;
+  readonly name: string;
+  readonly icon: string;
+  readonly action: () => Promise<string>;
 }
 
 interface SocialProviderButtonProps {
-  provider: SocialProvider;
-  disabled?: boolean;
+  readonly provider: SocialProvider;
+  readonly disabled?: boolean;
 }
 
 export function SocialProviderButton({ provider, disabled }: SocialProviderButtonProps): React.ReactElement {
   const handleClick = async (): Promise<void> => {
     const authUrl = await provider.action();
-    window.location.href = authUrl;
+    globalThis.location.href = authUrl;
   };
 
   return (

@@ -31,15 +31,93 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 
 function triggerOrgRefresh(): void {
-  window.dispatchEvent(new CustomEvent('org-updated'));
+  globalThis.dispatchEvent(new CustomEvent('org-updated'));
+}
+
+interface Organization {
+  readonly id: string;
+  readonly name: string;
+  readonly role: string;
 }
 
 interface OrganizationCardProps {
-  organization: {
-    id: string;
-    name: string;
-    role: string;
-  };
+  readonly organization: Organization;
+}
+
+// Extracted EditForm component
+interface EditFormProps {
+  readonly name: string;
+  readonly setName: (name: string) => void;
+  readonly logoPreview: string | null;
+  readonly onLogoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+function EditForm({ name, setName, logoPreview, onLogoChange }: EditFormProps): React.ReactElement {
+  return (
+    <div className="space-y-6 py-6 px-4 md:px-0">
+      <div className="space-y-2">
+        <Label>Organization Logo</Label>
+        <div className="flex items-center gap-4">
+          <div className="relative size-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted shrink-0">
+            {logoPreview ? (
+              <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
+            ) : (
+              <Upload className="size-8 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <Input type="file" accept="image/*" onChange={onLogoChange} className="text-sm" />
+            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="orgName">Organization Name</Label>
+        <Input id="orgName" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+    </div>
+  );
+}
+
+// Extracted SaveButton component
+interface SaveButtonProps {
+  readonly loading: boolean;
+  readonly disabled: boolean;
+  readonly onClick: () => void;
+}
+
+function SaveButton({ loading, disabled, onClick }: SaveButtonProps): React.ReactElement {
+  return (
+    <Button onClick={onClick} disabled={disabled} className="w-full">
+      {loading ? 'Saving...' : 'Save Changes'}
+    </Button>
+  );
+}
+
+// Extracted OrganizationInfo component
+interface OrganizationInfoProps {
+  readonly name: string;
+  readonly role: string;
+  readonly logoPreview: string | null;
+}
+
+function OrganizationInfo({ name, role, logoPreview }: OrganizationInfoProps): React.ReactElement {
+  return (
+    <>
+      <div className="relative size-14 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+        {logoPreview ? (
+          <Image src={logoPreview} alt="Logo" fill className="object-cover" />
+        ) : (
+          <Building2 className="size-6 text-muted-foreground" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-base truncate">{name}</h3>
+        <p className="text-sm text-muted-foreground capitalize">{role}</p>
+      </div>
+    </>
+  );
 }
 
 export function OrganizationCard({ organization }: OrganizationCardProps): React.ReactElement {
@@ -101,38 +179,6 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
     }
   };
 
-  const EditForm = (): React.ReactElement => (
-    <div className="space-y-6 py-6 px-4 md:px-0">
-      <div className="space-y-2">
-        <Label>Organization Logo</Label>
-        <div className="flex items-center gap-4">
-          <div className="relative size-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted shrink-0">
-            {logoPreview ? (
-              <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
-            ) : (
-              <Upload className="size-8 text-muted-foreground" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <Input type="file" accept="image/*" onChange={handleLogoChange} className="text-sm" />
-            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="orgName">Organization Name</Label>
-        <Input id="orgName" value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-    </div>
-  );
-
-  const SaveButton = (): React.ReactElement => (
-    <Button onClick={handleSave} disabled={loading || name === organization.name} className="w-full">
-      {loading ? 'Saving...' : 'Save Changes'}
-    </Button>
-  );
-
   // Use Drawer on mobile, Sheet on desktop
   if (isMobile) {
     return (
@@ -140,17 +186,7 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
         <Card className="overflow-hidden">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
-              <div className="relative size-14 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                {logoPreview ? (
-                  <Image src={logoPreview} alt="Logo" fill className="object-cover" />
-                ) : (
-                  <Building2 className="size-6 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-base truncate">{organization.name}</h3>
-                <p className="text-sm text-muted-foreground capitalize">{organization.role}</p>
-              </div>
+              <OrganizationInfo name={organization.name} role={organization.role} logoPreview={logoPreview} />
               {isAdmin && (
                 <DrawerTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5">
@@ -170,9 +206,18 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
               Update your organization details
             </DrawerDescription>
           </DrawerHeader>
-          <EditForm />
+          <EditForm
+            name={name}
+            setName={setName}
+            logoPreview={logoPreview}
+            onLogoChange={handleLogoChange}
+          />
           <DrawerFooter>
-            <SaveButton />
+            <SaveButton
+              loading={loading}
+              disabled={loading || name === organization.name}
+              onClick={handleSave}
+            />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -184,17 +229,7 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
       <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="relative size-14 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-              {logoPreview ? (
-                <Image src={logoPreview} alt="Logo" fill className="object-cover" />
-              ) : (
-                <Building2 className="size-6 text-muted-foreground" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-base truncate">{organization.name}</h3>
-              <p className="text-sm text-muted-foreground capitalize">{organization.role}</p>
-            </div>
+            <OrganizationInfo name={organization.name} role={organization.role} logoPreview={logoPreview} />
             {isAdmin && (
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
@@ -214,9 +249,18 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
             Update your organization details
           </SheetDescription>
         </SheetHeader>
-        <EditForm />
+        <EditForm
+          name={name}
+          setName={setName}
+          logoPreview={logoPreview}
+          onLogoChange={handleLogoChange}
+        />
         <SheetFooter>
-          <SaveButton />
+          <SaveButton
+            loading={loading}
+            disabled={loading || name === organization.name}
+            onClick={handleSave}
+          />
         </SheetFooter>
       </SheetContent>
     </Sheet>

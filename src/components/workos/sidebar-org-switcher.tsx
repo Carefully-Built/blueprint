@@ -31,8 +31,8 @@ interface OrganizationsResponse {
 }
 
 interface SidebarOrgSwitcherProps {
-  collapsed?: boolean;
-  onSwitch?: (orgId: string) => void;
+  readonly collapsed?: boolean;
+  readonly onSwitch?: (orgId: string) => void;
 }
 
 export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSwitcherProps): React.ReactElement {
@@ -66,9 +66,9 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
     const handleOrgUpdate = (): void => {
       fetchOrgs();
     };
-    window.addEventListener('org-updated', handleOrgUpdate);
+    globalThis.addEventListener('org-updated', handleOrgUpdate);
     return (): void => {
-      window.removeEventListener('org-updated', handleOrgUpdate);
+      globalThis.removeEventListener('org-updated', handleOrgUpdate);
     };
   }, [fetchOrgs]);
 

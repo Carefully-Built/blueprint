@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 
 interface ConvexClientProviderProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export const ConvexClientProvider = ({
