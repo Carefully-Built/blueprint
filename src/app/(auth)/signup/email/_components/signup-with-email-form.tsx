@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ import { signUp } from '../../../actions';
 
 export function SignUpWithEmailForm(): React.ReactElement {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  
   const [state, formAction, isPending] = useActionState(
     async (_prevState: unknown, formData: FormData) => {
       const result = await signUp(formData);
@@ -23,8 +26,15 @@ export function SignUpWithEmailForm(): React.ReactElement {
     { success: false, error: undefined }
   );
 
+  // Clear password field on error for security
+  useEffect(() => {
+    if (state?.error && passwordRef.current) {
+      passwordRef.current.value = '';
+    }
+  }, [state?.error]);
+
   return (
-    <form action={formAction} className="space-y-3">
+    <form ref={formRef} action={formAction} className="space-y-3">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -40,6 +50,7 @@ export function SignUpWithEmailForm(): React.ReactElement {
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
+          ref={passwordRef}
           autoComplete="new-password"
           id="password"
           name="password"

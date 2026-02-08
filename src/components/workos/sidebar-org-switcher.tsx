@@ -2,7 +2,7 @@
 
 import { Building2, ChevronDown, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { CreateOrganization } from './create-organization';
 
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useOrganization } from '@/providers';
 
 
 interface Organization {
@@ -36,22 +37,28 @@ interface SidebarOrgSwitcherProps {
 
 export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSwitcherProps): React.ReactElement {
   const router = useRouter();
+  const { organizationId, setOrganizationId } = useOrganization();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
 
-  const fetchOrgs = (): void => {
+  const fetchOrgs = useCallback((): void => {
     fetch('/api/organizations')
       .then((res) => (res.ok ? res.json() : { organizations: [] }))
       .then((data: OrganizationsResponse) => {
         setOrganizations(data.organizations);
-        if (data.organizations.length > 0 && data.organizations[0]) {
+        // Find the current org from context or use first
+        const matchingOrg = data.organizations.find((o) => o.id === organizationId);
+        if (matchingOrg) {
+          setCurrentOrg(matchingOrg);
+        } else if (data.organizations.length > 0 && data.organizations[0]) {
           setCurrentOrg(data.organizations[0]);
+          setOrganizationId(data.organizations[0].id);
         }
       })
       .catch(() => {
         // Silently fail
       });
-  };
+  }, [organizationId, setOrganizationId]);
 
   useEffect(() => {
     fetchOrgs();
@@ -63,7 +70,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
     return (): void => {
       window.removeEventListener('org-updated', handleOrgUpdate);
     };
-  }, []);
+  }, [fetchOrgs]);
 
   const handleSwitch = async (org: Organization): Promise<void> => {
     try {
@@ -75,6 +82,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
 
       if (response.ok) {
         setCurrentOrg(org);
+        setOrganizationId(org.id);
         onSwitch?.(org.id);
         router.refresh();
       }
@@ -91,6 +99,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
         const newOrg = data.organizations.find((o: Organization) => o.id === orgId);
         if (newOrg) {
           setCurrentOrg(newOrg);
+          setOrganizationId(newOrg.id);
         }
       });
     onSwitch?.(orgId);

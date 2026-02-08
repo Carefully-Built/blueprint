@@ -15,7 +15,7 @@ const shadcnPatterns = [
 
 export default tseslint.config(
   {
-    ignores: ['.next/**', 'node_modules/**', '*.config.*', 'convex/_generated/**'],
+    ignores: ['.next/**', 'node_modules/**', '*.config.*', 'convex/_generated/**', '.netlify/**'],
   },
 
   // Base TypeScript strict config

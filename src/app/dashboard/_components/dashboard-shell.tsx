@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { OrganizationProvider } from '@/providers';
 import { AppSidebar, SidebarProvider, useSidebar } from './app-sidebar';
 import type { UserInfo } from './app-sidebar';
 import { useSyncUser, type WorkOSUser } from '@/hooks/use-sync-user';
@@ -31,11 +32,13 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   useSyncUser(user);
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen">
-        <AppSidebar user={user} />
-        <MainContent>{children}</MainContent>
-      </div>
-    </SidebarProvider>
+    <OrganizationProvider initialOrganizationId={user.organizationId}>
+      <SidebarProvider>
+        <div className="min-h-screen">
+          <AppSidebar user={user} />
+          <MainContent>{children}</MainContent>
+        </div>
+      </SidebarProvider>
+    </OrganizationProvider>
   );
 }

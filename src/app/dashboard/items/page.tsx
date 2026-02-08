@@ -19,6 +19,7 @@ import {
   useUpdateItem,
 } from '@/hooks/use-items';
 import { useUsersByOrganization } from '@/hooks/use-users';
+import { useOrganization } from '@/providers';
 
 
 
@@ -70,15 +71,16 @@ const columns: Column<Item>[] = [
 export default function ItemsPage(): React.ReactElement {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const { organizationId } = useOrganization();
   
   // Convex queries and mutations
-  const items = useItemsByOrganization('default');
-  const users = useUsersByOrganization('default');
+  const items = useItemsByOrganization(organizationId);
+  const users = useUsersByOrganization(organizationId);
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
 
-  const isLoading = items === undefined;
+  const isLoading = items === undefined || organizationId === null;
   
   // Get the first user as fallback (the one who just signed in)
   // In production, you'd want proper user context from server components
@@ -135,13 +137,17 @@ export default function ItemsPage(): React.ReactElement {
           toast.error('No user found. Please sign out and sign back in.');
           return;
         }
+        if (!organizationId) {
+          toast.error('No organization selected.');
+          return;
+        }
         await createItem({ 
           data: {
             name: data.name,
             description: data.description,
             status: data.status,
             priority: data.priority,
-            organizationId: 'default',
+            organizationId,
           },
           createdBy: currentUser._id,
         });
