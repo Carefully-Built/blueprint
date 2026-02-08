@@ -1,6 +1,11 @@
 'use client';
 
-import { UserProfile, UserSecurity, UserSessions } from '@workos-inc/widgets';
+import {
+  UserProfile,
+  UserSecurity,
+  UserSessions,
+  WorkOsWidgets,
+} from '@workos-inc/widgets';
 import { useRouter } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 
@@ -27,49 +32,51 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
   }, [handleUserUpdate]);
 
   return (
-    <div className="space-y-6">
-      {/* Profile */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>
-            Manage your personal information and preferences.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserProfile authToken={authToken} />
-        </CardContent>
-      </Card>
+    <WorkOsWidgets>
+      <div className="space-y-6">
+        {/* Profile */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile</CardTitle>
+            <CardDescription>
+              Manage your personal information and preferences.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserProfile authToken={authToken} />
+          </CardContent>
+        </Card>
 
-      {/* Security */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Security</CardTitle>
-          <CardDescription>
-            Manage your password and two-factor authentication.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserSecurity authToken={authToken} />
-        </CardContent>
-      </Card>
+        {/* Security */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Security</CardTitle>
+            <CardDescription>
+              Manage your password and two-factor authentication.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserSecurity authToken={authToken} />
+          </CardContent>
+        </Card>
 
-      {/* Sessions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Active Sessions</CardTitle>
-          <CardDescription>
-            View and manage your active sessions across devices.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {sessionId ? (
-            <UserSessions authToken={authToken} currentSessionId={sessionId} />
-          ) : (
-            <p className="text-sm text-muted-foreground">Unable to load sessions.</p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        {/* Sessions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Sessions</CardTitle>
+            <CardDescription>
+              View and manage your active sessions across devices.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sessionId ? (
+              <UserSessions authToken={authToken} currentSessionId={sessionId} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Unable to load sessions.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </WorkOsWidgets>
   );
 }
