@@ -1,4 +1,3 @@
-import { AuthKitProvider } from '@workos-inc/authkit-nextjs/components';
 import { redirect } from 'next/navigation';
 
 import { DashboardShell } from './_components/dashboard-shell';
@@ -52,10 +51,8 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   };
 
   return (
-    <AuthKitProvider>
-      <TooltipProvider>
-        <DashboardShell user={userInfo}>{children}</DashboardShell>
-      </TooltipProvider>
-    </AuthKitProvider>
+    <TooltipProvider>
+      <DashboardShell user={userInfo}>{children}</DashboardShell>
+    </TooltipProvider>
   );
 }

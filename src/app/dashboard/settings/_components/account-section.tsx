@@ -1,6 +1,5 @@
 'use client';
 
-import { useAccessToken } from '@workos-inc/authkit-nextjs/components';
 import {
   UserProfile,
   UserSecurity,
@@ -11,20 +10,15 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 
-export function AccountSection(): React.ReactElement {
+interface AccountSectionProps {
+  authToken: string;
+  sessionId: string | null;
+}
+
+export function AccountSection({ authToken, sessionId }: AccountSectionProps): React.ReactElement {
   const router = useRouter();
-  const { getAccessToken, loading, error } = useAccessToken();
 
-  // Wrapper that ensures token is defined (widgets require non-undefined)
-  const getToken = async (): Promise<string> => {
-    const token = await getAccessToken();
-    if (!token) throw new Error('No access token available');
-    return token;
-  };
-
-  // Set up listener for user updates
   const handleUserUpdate = useCallback((): void => {
     router.refresh();
   }, [router]);
@@ -36,34 +30,9 @@ export function AccountSection(): React.ReactElement {
     };
   }, [handleUserUpdate]);
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-4 w-48" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-32 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-sm text-destructive">
-        Error loading account settings. Please try refreshing the page.
-      </div>
-    );
-  }
-
   return (
     <WorkOsWidgets>
       <div className="space-y-6">
-        {/* Profile */}
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -72,11 +41,10 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserProfile authToken={getToken} />
+            <UserProfile authToken={authToken} />
           </CardContent>
         </Card>
 
-        {/* Security */}
         <Card>
           <CardHeader>
             <CardTitle>Security</CardTitle>
@@ -85,11 +53,10 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserSecurity authToken={getToken} />
+            <UserSecurity authToken={authToken} />
           </CardContent>
         </Card>
 
-        {/* Sessions */}
         <Card>
           <CardHeader>
             <CardTitle>Active Sessions</CardTitle>
@@ -98,7 +65,11 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserSessions authToken={getToken} />
+            {sessionId ? (
+              <UserSessions authToken={authToken} currentSessionId={sessionId} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Unable to load sessions.</p>
+            )}
           </CardContent>
         </Card>
       </div>
