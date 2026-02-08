@@ -54,7 +54,7 @@ interface EditFormProps {
 
 function EditForm({ name, setName, logoPreview, onLogoChange }: EditFormProps): React.ReactElement {
   return (
-    <div className="space-y-6 py-6 px-4 md:px-0">
+    <div className="space-y-6 py-4 px-4">
       <div className="space-y-2">
         <Label>Organization Logo</Label>
         <div className="flex items-center gap-4">
@@ -183,8 +183,8 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={handleOpenChange}>
-        <Card className="overflow-hidden">
-          <CardContent className="p-4">
+        <Card className="overflow-hidden py-0">
+          <CardContent className="py-4">
             <div className="flex items-center gap-4">
               <OrganizationInfo name={organization.name} role={organization.role} logoPreview={logoPreview} />
               {isAdmin && (
@@ -226,8 +226,8 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
 
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-      <Card className="overflow-hidden">
-        <CardContent className="p-4">
+      <Card className="overflow-hidden py-0">
+        <CardContent className="py-4">
           <div className="flex items-center gap-4">
             <OrganizationInfo name={organization.name} role={organization.role} logoPreview={logoPreview} />
             {isAdmin && (
@@ -242,8 +242,8 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
         </CardContent>
       </Card>
 
-      <SheetContent side="right">
-        <SheetHeader>
+      <SheetContent side="right" className="p-0">
+        <SheetHeader className="p-4 pb-0">
           <SheetTitle>Edit Organization</SheetTitle>
           <SheetDescription>
             Update your organization details
@@ -255,7 +255,7 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
           logoPreview={logoPreview}
           onLogoChange={handleLogoChange}
         />
-        <SheetFooter>
+        <SheetFooter className="p-4 pt-0">
           <SaveButton
             loading={loading}
             disabled={loading || name === organization.name}

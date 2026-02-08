@@ -134,17 +134,152 @@
   }
 }
 
-/* WorkOS Widget Responsive Styles */
+/* WorkOS Widget Styles - Match Blueprint Design System */
 
-/* Fix text wrapping issue in WorkOS widgets */
+/* Base container styles */
 .workos-widget-container {
   overflow-x: hidden;
 }
 
+/* Typography - Use our font */
+.woswidgets-root,
+.woswidgets-widget {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 0.875rem !important;
+}
+
+/* Buttons - Match our button styles */
+.woswidgets-button {
+  border-radius: var(--radius-lg) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  height: 2rem !important;
+  padding: 0 0.625rem !important;
+  transition: all 150ms !important;
+}
+
+.woswidgets-button--primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+.woswidgets-button--primary:hover {
+  opacity: 0.9 !important;
+}
+
+.woswidgets-button--secondary {
+  background-color: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.woswidgets-button--secondary:hover {
+  background-color: var(--muted) !important;
+}
+
+/* Text fields - Match our input styles */
+.woswidgets-text-field {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--input) !important;
+  background-color: transparent !important;
+  height: 2rem !important;
+  padding: 0.25rem 0.625rem !important;
+  font-size: 0.875rem !important;
+  transition: border-color 150ms, box-shadow 150ms !important;
+}
+
+.woswidgets-text-field:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 3px oklch(from var(--ring) l c h / 0.5) !important;
+  outline: none !important;
+}
+
+/* Labels */
+.woswidgets-label {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--foreground) !important;
+}
+
+/* Dialogs - Match our modal styles */
+.woswidgets-dialog {
+  border-radius: var(--radius-xl) !important;
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25) !important;
+}
+
+.woswidgets-dialog-overlay {
+  background-color: rgb(0 0 0 / 0.1) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* Dropdowns */
+.woswidgets-dropdown {
+  border-radius: var(--radius-lg) !important;
+  background-color: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Menu items */
+.woswidgets-menu-item {
+  border-radius: var(--radius-md) !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.woswidgets-menu-item:hover {
+  background-color: var(--accent) !important;
+}
+
+.woswidgets-menu-item--destructive {
+  color: var(--destructive) !important;
+}
+
+/* Select */
+.woswidgets-select {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--input) !important;
+  height: 2rem !important;
+  font-size: 0.875rem !important;
+}
+
+.woswidgets-select-dropdown {
+  border-radius: var(--radius-lg) !important;
+  background-color: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Avatar */
+.woswidgets-avatar {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* Badge */
+.woswidgets-badge {
+  border-radius: var(--radius-md) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* Icon buttons */
+.woswidgets-icon-button {
+  border-radius: var(--radius-md) !important;
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+/* Skeleton loading */
+.woswidgets-skeleton {
+  border-radius: var(--radius-md) !important;
+  background-color: var(--muted) !important;
+}
+
+/* Fix text wrapping */
 .workos-widget-container * {
   word-break: normal !important;
   overflow-wrap: break-word !important;
-  white-space: normal !important;
 }
 
 /* Fix Radix Themes flex containers */
@@ -155,11 +290,10 @@
 
 .workos-widget-container .rt-Text {
   word-break: normal !important;
-  white-space: normal !important;
   overflow-wrap: break-word !important;
 }
 
-/* Fix table layout on mobile */
+/* Mobile responsive styles */
 @media (max-width: 640px) {
   .workos-widget-container .rt-TableRoot {
     display: block !important;
@@ -193,7 +327,6 @@
     flex-shrink: 0 !important;
   }
 
-  /* Make the value + edit button container work */
   .workos-widget-container .rt-TableCell .rt-Flex {
     flex: 1 !important;
     min-width: 0 !important;
@@ -201,26 +334,21 @@
     text-align: right !important;
   }
 
-  /* Ensure text doesn't break weirdly */
   .workos-widget-container .rt-TableCell .rt-Text,
   .workos-widget-container .rt-TableCell span {
     word-break: normal !important;
-    white-space: normal !important;
     text-align: right !important;
   }
 
-  /* Button styling */
   .workos-widget-container .rt-TableCell button {
     flex-shrink: 0 !important;
     margin-left: 0.5rem !important;
   }
 
-  /* Card adjustments */
   .workos-widget-container .rt-Card {
     padding: 1rem !important;
   }
 
-  /* Profile picture row */
   .workos-widget-container img[alt*="avatar"],
   .workos-widget-container img[alt*="profile"] {
     width: 48px !important;
