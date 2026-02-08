@@ -156,12 +156,12 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Convex queries and mutations
-  const orgData = useQuery(api.functions.organizations.getByWorkosId, {
+  const orgData = useQuery(api.functions.organizations.queries.getByWorkosId, {
     workosId: organization.id,
   });
-  const generateUploadUrl = useMutation(api.functions.organizations.generateUploadUrl);
-  const saveLogo = useMutation(api.functions.organizations.saveLogo);
-  const deleteLogo = useMutation(api.functions.organizations.deleteLogo);
+  const generateUploadUrl = useMutation(api.functions.organizations.mutations.generateUploadUrl);
+  const saveLogo = useMutation(api.functions.organizations.mutations.saveLogo);
+  const deleteLogo = useMutation(api.functions.organizations.mutations.deleteLogo);
 
   // Local state
   const [name, setName] = useState(organization.name);
