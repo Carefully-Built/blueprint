@@ -1,15 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { GenericFaqSection } from './generic-faq-section';
+import type { FaqItemProps } from './faq-item';
 
-interface FaqItem {
-  readonly question: string;
-  readonly answer: string;
-}
-
-const faqs: readonly FaqItem[] = [
+const faqs: readonly FaqItemProps[] = [
   {
     question: 'What is Blueprint?',
     answer:
@@ -52,67 +46,12 @@ const faqs: readonly FaqItem[] = [
   },
 ];
 
-function FaqItem({ question, answer }: FaqItem): React.ReactElement {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-5 text-left"
-      >
-        <span className="font-medium">{question}</span>
-        <ChevronDown
-          className={cn(
-            'size-5 text-muted-foreground transition-transform duration-200',
-            isOpen && 'rotate-180'
-          )}
-        />
-      </button>
-      <div
-        className={cn(
-          'grid transition-all duration-200 ease-in-out',
-          isOpen ? 'grid-rows-[1fr] pb-5' : 'grid-rows-[0fr]'
-        )}
-      >
-        <div className="overflow-hidden">
-          <p className="text-muted-foreground">{answer}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function FaqSection(): React.ReactElement {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">FAQ</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Frequently asked questions
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Everything you need to know about Blueprint.
-          </p>
-        </div>
-
-        <div className="mt-12">
-          {faqs.map((faq) => (
-            <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
-          ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <p className="text-muted-foreground">
-            Still have questions?{' '}
-            <a href="mailto:support@blueprint.dev" className="text-primary hover:underline">
-              Contact us
-            </a>
-          </p>
-        </div>
-      </div>
-    </section>
+    <GenericFaqSection
+      title="Frequently asked questions"
+      description="Everything you need to know about Blueprint."
+      items={faqs}
+    />
   );
 }

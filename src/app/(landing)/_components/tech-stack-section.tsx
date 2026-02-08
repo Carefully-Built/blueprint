@@ -1,101 +1,89 @@
 import Link from 'next/link';
-
-import {
-  NextjsLogo,
-  ConvexLogo,
-  WorkOSLogo,
-  ShadcnLogo,
-  TailwindLogo,
-  TypeScriptLogo,
-  ZodLogo,
-  ResendLogo,
-  StripeLogo,
-  OpenAILogo,
-  TanStackLogo,
-  I18nLogo,
-} from '@/components/logos';
-
-import type { SVGProps } from 'react';
+import Image from 'next/image';
 
 interface TechItem {
   readonly name: string;
   readonly description: string;
-  readonly Logo: (props: SVGProps<SVGSVGElement>) => React.ReactElement;
+  readonly logo: string;
   readonly href: string;
+  readonly className?: string;
 }
 
 const techStack: readonly TechItem[] = [
   {
     name: 'Next.js 15',
     description: 'App Router & Server Actions',
-    Logo: NextjsLogo,
+    logo: '/images/stack/next-js.svg',
     href: 'https://nextjs.org',
+    className: 'dark:invert',
   },
   {
     name: 'Convex',
     description: 'Real-time backend',
-    Logo: ConvexLogo,
+    logo: '/images/stack/convex.webp',
     href: 'https://convex.dev',
   },
   {
     name: 'WorkOS',
     description: 'Enterprise auth & SSO',
-    Logo: WorkOSLogo,
+    logo: '/images/stack/workos.png',
     href: 'https://workos.com',
   },
   {
     name: 'shadcn/ui',
     description: 'Beautiful components',
-    Logo: ShadcnLogo,
+    logo: '/images/stack/shadcn.png',
     href: 'https://ui.shadcn.com',
   },
   {
     name: 'Tailwind CSS',
     description: 'Utility-first styling',
-    Logo: TailwindLogo,
+    logo: '/images/stack/tailwind.png',
     href: 'https://tailwindcss.com',
   },
   {
     name: 'TypeScript',
     description: 'Type-safe development',
-    Logo: TypeScriptLogo,
+    logo: '/images/stack/typescript.png',
     href: 'https://typescriptlang.org',
   },
   {
     name: 'Zod',
     description: 'Schema validation',
-    Logo: ZodLogo,
+    logo: '/images/stack/zod.webp',
     href: 'https://zod.dev',
   },
   {
     name: 'Resend',
     description: 'Transactional emails',
-    Logo: ResendLogo,
+    logo: '/images/stack/resend.webp',
     href: 'https://resend.com',
+    className: 'dark:invert',
   },
   {
     name: 'Stripe',
     description: 'Payments & billing',
-    Logo: StripeLogo,
+    logo: '/images/stack/sripe.png',
     href: 'https://stripe.com',
   },
   {
     name: 'OpenAI',
     description: 'AI & LLM integration',
-    Logo: OpenAILogo,
+    logo: '/images/stack/openai.webp',
     href: 'https://openai.com',
+    className: 'dark:invert',
   },
   {
     name: 'TanStack',
     description: 'Query & table utilities',
-    Logo: TanStackLogo,
+    logo: '/images/stack/tanstack.png',
     href: 'https://tanstack.com',
   },
   {
-    name: 'next-intl',
-    description: 'Internationalization',
-    Logo: I18nLogo,
-    href: 'https://next-intl-docs.vercel.app',
+    name: 'nuqs',
+    description: 'Type-safe search params',
+    logo: '/images/stack/nuqs.jpg',
+    href: 'https://nuqs.47ng.com',
   },
 ];
 
@@ -125,8 +113,14 @@ export function TechStackSection(): React.ReactElement {
               rel="noopener noreferrer"
               className="group flex items-start gap-4 rounded-xl border bg-background p-4 transition-all hover:border-primary/50 hover:shadow-md"
             >
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl overflow-hidden">
-                <tech.Logo className="size-10" />
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-muted/20">
+                <Image
+                  src={tech.logo}
+                  alt={tech.name}
+                  width={40}
+                  height={40}
+                  className={`size-10 object-contain ${tech.className ?? ''}`}
+                />
               </div>
               <div className="min-w-0">
                 <h3 className="font-semibold group-hover:text-primary transition-colors">{tech.name}</h3>

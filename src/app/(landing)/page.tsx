@@ -1,12 +1,14 @@
 import Link from 'next/link';
+
+import { FaqSection } from './_components/faq-section';
+import { FeaturesSection } from './_components/features-section';
+import { TechStackSection } from './_components/tech-stack-section';
+
 import type { Metadata } from 'next';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-import { FaqSection } from './_components/faq-section';
-import { FeaturesSection } from './_components/features-section';
-import { TechStackSection } from './_components/tech-stack-section';
 
 export const metadata: Metadata = {
   title: 'Blueprint - Ship B2B SaaS in Hours',

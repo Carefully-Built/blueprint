@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -15,7 +15,7 @@ export default function ContactPage(): React.ReactElement {
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setStatus('submitting');
     setErrorMessage('');
@@ -71,7 +71,7 @@ export default function ContactPage(): React.ReactElement {
                 <p className="text-muted-foreground mb-6">
                   Thank you for reaching out. We&apos;ll get back to you soon.
                 </p>
-                <Button variant="outline" onClick={() => setStatus('idle')}>
+                <Button variant="outline" onClick={() => { setStatus('idle'); }}>
                   Send Another Message
                 </Button>
               </div>
