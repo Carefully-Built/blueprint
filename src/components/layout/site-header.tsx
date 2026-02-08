@@ -5,6 +5,7 @@ import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
 
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { landingNav } from '@/config/site';
 
 export function SiteHeader(): React.ReactElement {
@@ -25,11 +26,16 @@ export function SiteHeader(): React.ReactElement {
           </Link>
         </div>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           <MainNav items={landingNav} />
+          <ThemeToggle />
           <Button asChild>
             <Link href="/login">Sign In</Link>
           </Button>
+        </div>
+
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
         </div>
       </div>
     </header>

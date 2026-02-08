@@ -1,7 +1,8 @@
-import { Building2, User } from 'lucide-react';
+import { Building2, Palette, User } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 import { AccountSection } from './_components/account-section';
+import { AppearanceSection } from './_components/appearance-section';
 import { OrganizationSection } from './_components/organization-section';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -87,6 +88,10 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
               Organization
             </TabsTrigger>
           )}
+          <TabsTrigger value="appearance" className="gap-1.5">
+            <Palette className="size-3.5" />
+            Appearance
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="account" className="mt-6">
@@ -101,6 +106,10 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
             />
           </TabsContent>
         )}
+
+        <TabsContent value="appearance" className="mt-6">
+          <AppearanceSection />
+        </TabsContent>
       </Tabs>
     </div>
   );
