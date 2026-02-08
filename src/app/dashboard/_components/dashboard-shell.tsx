@@ -1,10 +1,11 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { OrganizationProvider } from '@/providers';
+import { OrganizationProvider, UserProvider } from '@/providers';
 import { AppSidebar, SidebarProvider, useSidebar } from './app-sidebar';
-import type { UserInfo } from './app-sidebar';
 import { useSyncUser, type WorkOSUser } from '@/hooks/use-sync-user';
+
+import type { UserData } from '@/providers';
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -13,7 +14,9 @@ function MainContent({ children }: { children: React.ReactNode }) {
     <main 
       className={cn(
         "min-h-screen transition-all duration-200 ease-in-out",
-        isCollapsed ? "pl-14" : "pl-[220px]"
+        "md:pl-14",
+        !isCollapsed && "md:pl-[220px]",
+        "pt-16 md:pt-0"
       )}
     >
       <div className="p-4 lg:p-6">
@@ -25,20 +28,32 @@ function MainContent({ children }: { children: React.ReactNode }) {
 
 interface DashboardShellProps {
   children: React.ReactNode;
-  user: WorkOSUser & UserInfo;
+  user: WorkOSUser & UserData;
 }
 
 export function DashboardShell({ children, user }: DashboardShellProps) {
   useSyncUser(user);
 
+  const userData: UserData = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    imageUrl: user.imageUrl,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    organizationId: user.organizationId,
+  };
+
   return (
-    <OrganizationProvider initialOrganizationId={user.organizationId}>
-      <SidebarProvider>
-        <div className="min-h-screen">
-          <AppSidebar user={user} />
-          <MainContent>{children}</MainContent>
-        </div>
-      </SidebarProvider>
-    </OrganizationProvider>
+    <UserProvider initialUser={userData}>
+      <OrganizationProvider initialOrganizationId={user.organizationId}>
+        <SidebarProvider>
+          <div className="min-h-screen">
+            <AppSidebar />
+            <MainContent>{children}</MainContent>
+          </div>
+        </SidebarProvider>
+      </OrganizationProvider>
+    </UserProvider>
   );
 }

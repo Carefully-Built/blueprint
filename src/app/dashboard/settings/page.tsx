@@ -1,10 +1,8 @@
+import { Building2, User } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
-import { OrganizationTab } from './_components/organization-tab';
-import { ProfileTab } from './_components/profile-tab';
-import { SecurityTab } from './_components/security-tab';
-import { SessionsTab } from './_components/sessions-tab';
-import { TeamTab } from './_components/team-tab';
+import { AccountSection } from './_components/account-section';
+import { OrganizationSection } from './_components/organization-section';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getSession, type SessionData } from '@/lib/session';
@@ -20,6 +18,27 @@ interface OrgInfo {
 interface UserAndOrg {
   session: SessionData;
   organization: OrgInfo | null;
+  sessionId: string | null;
+}
+
+interface JwtPayload {
+  sid?: string;
+  sub?: string;
+  exp?: number;
+  iat?: number;
+}
+
+function extractSessionId(accessToken: string): string | null {
+  try {
+    // JWT format: header.payload.signature
+    const parts = accessToken.split('.');
+    if (parts.length !== 3 || !parts[1]) return null;
+    
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString()) as JwtPayload;
+    return payload.sid ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function getUserAndOrg(): Promise<UserAndOrg> {
@@ -29,6 +48,8 @@ async function getUserAndOrg(): Promise<UserAndOrg> {
     redirect('/login');
   }
 
+  const sessionId = extractSessionId(session.accessToken);
+
   try {
     const memberships = await workos.userManagement.listOrganizationMemberships({
       userId: session.user.id,
@@ -36,29 +57,32 @@ async function getUserAndOrg(): Promise<UserAndOrg> {
 
     const firstMembership = memberships.data[0];
     if (!firstMembership) {
-      return { session, organization: null };
+      return { session, organization: null, sessionId };
     }
 
     const org = await workos.organizations.getOrganization(
       firstMembership.organizationId
     );
 
+    const roleSlug = firstMembership.role.slug;
+
     return {
       session,
       organization: {
         id: org.id,
         name: org.name,
-        role: firstMembership.role.slug || 'member',
+        role: roleSlug || 'member',
       },
+      sessionId,
     };
   } catch (err) {
     console.error('Error getting user org:', err);
-    return { session, organization: null };
+    return { session, organization: null, sessionId };
   }
 }
 
 export default async function SettingsPage(): Promise<React.ReactElement> {
-  const { session, organization } = await getUserAndOrg();
+  const { session, organization, sessionId } = await getUserAndOrg();
   const accessToken = session.accessToken;
 
   let teamAuthToken: string | null = null;
@@ -77,41 +101,34 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
 
-      <Tabs defaultValue="profile" className="w-full">
+      <Tabs defaultValue="account" className="w-full">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
+          <TabsTrigger value="account" className="gap-1.5">
+            <User className="size-3.5" />
+            Account
+          </TabsTrigger>
           {organization && (
-            <>
-              <TabsTrigger value="organization">Organization</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-            </>
+            <TabsTrigger value="organization" className="gap-1.5">
+              <Building2 className="size-3.5" />
+              Organization
+            </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="profile" className="mt-6">
-          <ProfileTab authToken={accessToken} />
-        </TabsContent>
-
-        <TabsContent value="security" className="mt-6">
-          <SecurityTab authToken={accessToken} />
-        </TabsContent>
-
-        <TabsContent value="sessions" className="mt-6">
-          <SessionsTab authToken={accessToken} />
+        <TabsContent value="account" className="mt-6">
+          <AccountSection 
+            authToken={accessToken} 
+            sessionId={sessionId}
+          />
         </TabsContent>
 
         {organization && (
-          <>
-            <TabsContent value="organization" className="mt-6">
-              <OrganizationTab organization={organization} />
-            </TabsContent>
-
-            <TabsContent value="team" className="mt-6">
-              {teamAuthToken && <TeamTab authToken={teamAuthToken} />}
-            </TabsContent>
-          </>
+          <TabsContent value="organization" className="mt-6">
+            <OrganizationSection 
+              organization={organization}
+              teamAuthToken={teamAuthToken}
+            />
+          </TabsContent>
         )}
       </Tabs>
     </div>

@@ -1,10 +1,10 @@
 "use client"
 
-import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { LayoutDashboard, ListTodo, Settings, ChevronLeft, ChevronRight, LogOut, Menu, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState, createContext, useContext } from "react"
+import { useState, createContext, useContext, useEffect } from "react"
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SidebarOrgSwitcher } from "@/components/workos"
 import { signOutAction } from "@/app/(auth)/actions"
+import { useUser } from "@/providers"
 
 const SIDEBAR_WIDTH = 220
 const SIDEBAR_COLLAPSED_WIDTH = 56
@@ -20,8 +21,16 @@ const SIDEBAR_COLLAPSED_WIDTH = 56
 export const SidebarContext = createContext<{
   isCollapsed: boolean
   setIsCollapsed: (v: boolean) => void
+  isMobileOpen: boolean
+  setIsMobileOpen: (v: boolean) => void
   refreshOrg: () => void
-}>({ isCollapsed: false, setIsCollapsed: () => undefined, refreshOrg: () => undefined })
+}>({ 
+  isCollapsed: false, 
+  setIsCollapsed: () => undefined, 
+  isMobileOpen: false,
+  setIsMobileOpen: () => undefined,
+  refreshOrg: () => undefined 
+})
 
 export function useSidebar() {
   return useContext(SidebarContext)
@@ -36,23 +45,18 @@ const bottomNavItems = [
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
-
-export interface UserInfo {
-  email: string
-  name: string
-  imageUrl?: string
-}
-
-interface AppSidebarProps {
-  user: UserInfo | null;
-}
-
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar() {
   const pathname = usePathname()
-  const { isCollapsed, setIsCollapsed } = useSidebar()
+  const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
+  const { user } = useUser()
 
   const handleSignOut = async () => {
     await signOutAction();
+  }
+
+  const handleNavClick = () => {
+    // Close mobile drawer on navigation
+    setIsMobileOpen(false)
   }
 
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
@@ -62,6 +66,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
     const content = (
       <Link
         href={item.href}
+        onClick={handleNavClick}
         className={cn(
           "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
           isActive 
@@ -87,53 +92,109 @@ export function AppSidebar({ user }: AppSidebarProps) {
     return content
   }
 
-  return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r bg-background transition-all duration-200 ease-in-out",
-      )}
-      style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
-    >
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex h-12 items-center gap-2 px-2">
-        <Link href="/dashboard" className="flex items-center gap-2 min-w-0 flex-1">
-          <Image
-            src="/images/blue_logo.svg"
-            alt="Blueprint"
-            width={28}
-            height={28}
-            className="size-7 shrink-0"
-          />
-          {!isCollapsed && (
-            <span className="text-base font-semibold truncate">Blueprint</span>
-          )}
-        </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 shrink-0"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          {isCollapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
-        </Button>
+      <div className={cn(
+        "flex h-12 items-center gap-2 px-2",
+        isMobile && "justify-between",
+        (isCollapsed && !isMobile) && "justify-center"
+      )}>
+        {/* When collapsed on desktop, only show the toggle button centered */}
+        {isCollapsed && !isMobile ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => setIsCollapsed(false)}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        ) : (
+          <>
+            <Link href="/dashboard" className="flex items-center gap-2 min-w-0 flex-1" onClick={handleNavClick}>
+              <Image
+                src="/images/blue_logo.svg"
+                alt="Blueprint"
+                width={28}
+                height={28}
+                className="size-7 shrink-0"
+              />
+              <span className="text-base font-semibold truncate">Blueprint</span>
+            </Link>
+            {isMobile ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 shrink-0"
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 shrink-0"
+                onClick={() => setIsCollapsed(true)}
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Org Switcher */}
       <div className="px-2 pb-2">
-        <SidebarOrgSwitcher collapsed={isCollapsed} />
+        <SidebarOrgSwitcher collapsed={isCollapsed && !isMobile} />
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 px-2 overflow-y-auto">
         {navItems.map((item) => (
-          <NavLink key={item.href} item={item} />
+          isMobile ? (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={handleNavClick}
+              className={cn(
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+                pathname === item.href
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+              )}
+            >
+              <item.icon className="size-4 shrink-0" />
+              <span>{item.title}</span>
+            </Link>
+          ) : (
+            <NavLink key={item.href} item={item} />
+          )
         ))}
       </nav>
 
       {/* Bottom Navigation */}
       <div className="px-2 py-2 space-y-0.5">
         {bottomNavItems.map((item) => (
-          <NavLink key={item.href} item={item} />
+          isMobile ? (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={handleNavClick}
+              className={cn(
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+                pathname === item.href
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+              )}
+            >
+              <item.icon className="size-4 shrink-0" />
+              <span>{item.title}</span>
+            </Link>
+          ) : (
+            <NavLink key={item.href} item={item} />
+          )
         ))}
       </div>
 
@@ -141,7 +202,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <div className="border-t px-2 py-2">
         <div className={cn(
           "flex items-center gap-2.5 rounded-md p-1.5",
-          isCollapsed && "justify-center"
+          (isCollapsed && !isMobile) && "justify-center"
         )}>
           <Avatar className="size-7 shrink-0">
             <AvatarImage src={user?.imageUrl} />
@@ -149,7 +210,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate leading-tight">{user?.name || 'Loading...'}</p>
@@ -167,20 +228,81 @@ export function AppSidebar({ user }: AppSidebarProps) {
           )}
         </div>
       </div>
-    </aside>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Mobile Header Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-background px-4 md:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsMobileOpen(true)}
+        >
+          <Menu className="size-5" />
+        </Button>
+        
+        <Link href="/dashboard">
+          <Image
+            src="/images/blue_logo.svg"
+            alt="Blueprint"
+            width={28}
+            height={28}
+            className="size-7"
+          />
+        </Link>
+
+        <Avatar className="size-8">
+          <AvatarImage src={user?.imageUrl} />
+          <AvatarFallback className="text-xs">
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+
+      {/* Mobile Drawer */}
+      {isMobileOpen && (
+        <>
+          <div 
+            className="fixed inset-0 z-50 bg-black/50 md:hidden"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-full max-w-xs border-r bg-background md:hidden">
+            <SidebarContent isMobile />
+          </aside>
+        </>
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 hidden h-screen flex-col border-r bg-background transition-all duration-200 ease-in-out md:flex",
+        )}
+        style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
+      >
+        <SidebarContent />
+      </aside>
+    </>
   )
 }
 
 // Provider component
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileOpen(false)
+  }, [])
   
   const refreshOrg = () => {
     window.dispatchEvent(new CustomEvent('org-updated'));
   }
   
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, refreshOrg }}>
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, refreshOrg }}>
       {children}
     </SidebarContext.Provider>
   )
