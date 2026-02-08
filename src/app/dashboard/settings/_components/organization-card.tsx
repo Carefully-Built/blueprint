@@ -8,6 +8,7 @@ import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { api } from '@convex/_generated/api';
+import type { Id } from '@convex/_generated/dataModel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -226,10 +227,10 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
           throw new Error('Failed to upload logo');
         }
 
-        const { storageId } = (await response.json()) as { storageId: string };
+        const result = (await response.json()) as { storageId: Id<"_storage"> };
         await saveLogo({
           workosId: organization.id,
-          storageId: storageId as ReturnType<typeof api.functions.organizations.mutations.saveLogo>['_args']['storageId'],
+          storageId: result.storageId,
         });
       } else if (removeCurrentLogo && currentLogoUrl) {
         // Remove existing logo
