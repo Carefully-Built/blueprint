@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccessToken } from '@workos-inc/authkit-nextjs';
+import { useAccessToken } from '@workos-inc/authkit-nextjs/components';
 import {
   UserProfile,
   UserSecurity,
@@ -16,6 +16,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 export function AccountSection(): React.ReactElement {
   const router = useRouter();
   const { getAccessToken, loading, error } = useAccessToken();
+
+  // Wrapper that ensures token is defined (widgets require non-undefined)
+  const getToken = async (): Promise<string> => {
+    const token = await getAccessToken();
+    if (!token) throw new Error('No access token available');
+    return token;
+  };
 
   // Set up listener for user updates
   const handleUserUpdate = useCallback((): void => {
@@ -65,7 +72,7 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserProfile authToken={getAccessToken} />
+            <UserProfile authToken={getToken} />
           </CardContent>
         </Card>
 
@@ -78,7 +85,7 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserSecurity authToken={getAccessToken} />
+            <UserSecurity authToken={getToken} />
           </CardContent>
         </Card>
 
@@ -91,7 +98,7 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserSessions authToken={getAccessToken} />
+            <UserSessions authToken={getToken} />
           </CardContent>
         </Card>
       </div>

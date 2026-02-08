@@ -1,4 +1,4 @@
-import { AuthKitProvider } from '@workos-inc/authkit-nextjs';
+import { AuthKitProvider } from '@workos-inc/authkit-nextjs/components';
 import { redirect } from 'next/navigation';
 
 import { DashboardShell } from './_components/dashboard-shell';

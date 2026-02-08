@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccessToken } from '@workos-inc/authkit-nextjs';
+import { useAccessToken } from '@workos-inc/authkit-nextjs/components';
 
 import { UsersManagement, WorkOsWidgets } from '@/components/workos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,13 @@ export function OrganizationSection({
   organization, 
 }: OrganizationSectionProps): React.ReactElement {
   const { getAccessToken, loading, error } = useAccessToken();
+
+  // Wrapper that ensures token is defined (widgets require non-undefined)
+  const getToken = async (): Promise<string> => {
+    const token = await getAccessToken();
+    if (!token) throw new Error('No access token available');
+    return token;
+  };
 
   return (
     <div className="space-y-6">
@@ -42,7 +49,7 @@ export function OrganizationSection({
             </p>
           ) : (
             <WorkOsWidgets>
-              <UsersManagement authToken={getAccessToken} />
+              <UsersManagement authToken={getToken} />
             </WorkOsWidgets>
           )}
         </CardContent>
