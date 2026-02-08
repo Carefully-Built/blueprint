@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { Filter, Search, X } from 'lucide-react';
+import { parseAsString, useQueryState } from 'nuqs';
 import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import type { FilterOption } from '@/lib/filters';
 
 // ============================================================
@@ -35,7 +37,7 @@ export function FilterDropdown<T extends string>({
 }: FilterDropdownProps<T>): React.ReactElement {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as T | 'all')}>
-      <SelectTrigger className={className ?? 'w-[140px]'}>
+      <SelectTrigger className={className ?? 'w-full sm:w-[140px]'}>
         <SelectValue placeholder={label} />
       </SelectTrigger>
       <SelectContent>
@@ -68,7 +70,7 @@ export function SearchInput({
   className,
 }: SearchInputProps): React.ReactElement {
   return (
-    <div className={`relative ${className ?? ''}`}>
+    <div className={cn('relative', className)}>
       <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="search"
@@ -121,44 +123,104 @@ export function TableToolbar({
   onClearAll,
   children,
 }: TableToolbarProps): React.ReactElement {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   const hasActiveFilters =
     (search?.value && search.value.length > 0) ||
     filters?.some((f) => f.value !== 'all');
 
+  const activeFilterCount = filters?.filter((f) => f.value !== 'all').length ?? 0;
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 flex-wrap items-center gap-2">
+    <div className="space-y-3">
+      {/* Main row: Search + Filter button (mobile) / Search + Filters inline (desktop) */}
+      <div className="flex items-center gap-2">
         {search && (
           <SearchInput
             value={search.value}
             onChange={search.onChange}
             placeholder={search.placeholder}
-            className="w-full sm:w-64"
+            className="flex-1 sm:flex-initial sm:w-64"
           />
         )}
-        {filters?.map((filter) => (
-          <FilterDropdown
-            key={filter.config.key}
-            label={filter.config.label}
-            value={filter.value}
-            options={filter.config.options}
-            onChange={filter.onChange}
-          />
-        ))}
-        {hasActiveFilters && onClearAll && (
-          <Button variant="ghost" size="sm" onClick={onClearAll} className="h-8 px-2">
-            <X className="mr-1 size-4" />
-            Clear
+
+        {/* Mobile: Filter toggle button */}
+        {filters && filters.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="sm:hidden relative"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+          >
+            <Filter className="size-4" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
           </Button>
         )}
+
+        {/* Desktop: Inline filters */}
+        <div className="hidden sm:flex sm:items-center sm:gap-2">
+          {filters?.map((filter) => (
+            <FilterDropdown
+              key={filter.config.key}
+              label={filter.config.label}
+              value={filter.value}
+              options={filter.config.options}
+              onChange={filter.onChange}
+            />
+          ))}
+          {hasActiveFilters && onClearAll && (
+            <Button variant="ghost" size="sm" onClick={onClearAll} className="h-8 px-2">
+              <X className="mr-1 size-4" />
+              Clear
+            </Button>
+          )}
+        </div>
+
+        {children && <div className="hidden sm:flex sm:items-center sm:gap-2 sm:ml-auto">{children}</div>}
       </div>
-      {children && <div className="flex items-center gap-2">{children}</div>}
+
+      {/* Mobile: Expandable filters */}
+      {filters && filters.length > 0 && (
+        <div
+          className={cn(
+            'grid transition-all duration-200 ease-in-out sm:hidden',
+            filtersOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="space-y-2 pt-1">
+              {filters.map((filter) => (
+                <div key={filter.config.key} className="flex items-center gap-2">
+                  <span className="w-20 text-sm text-muted-foreground">{filter.config.label}</span>
+                  <FilterDropdown
+                    label={filter.config.label}
+                    value={filter.value}
+                    options={filter.config.options}
+                    onChange={filter.onChange}
+                    className="flex-1"
+                  />
+                </div>
+              ))}
+              {hasActiveFilters && onClearAll && (
+                <Button variant="outline" size="sm" onClick={onClearAll} className="w-full">
+                  <X className="mr-1 size-4" />
+                  Clear all filters
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ============================================================
-// USE TABLE FILTERS HOOK
+// USE TABLE FILTERS HOOK (with nuqs)
 // ============================================================
 
 export interface UseTableFiltersOptions<T> {
@@ -181,17 +243,34 @@ export function useTableFilters<T extends Record<string, unknown>>({
   searchFields = [],
   filterKeys = [],
 }: UseTableFiltersOptions<T>): UseTableFiltersReturn<T> {
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  // Use nuqs for URL state
+  const [search, setSearchRaw] = useQueryState('q', parseAsString.withDefault(''));
+  const [statusFilter, setStatusFilter] = useQueryState('status', parseAsString.withDefault('all'));
+  const [priorityFilter, setPriorityFilter] = useQueryState('priority', parseAsString.withDefault('all'));
+
+  // Build filters object from URL state
+  const filters: Record<string, string> = {
+    status: statusFilter,
+    priority: priorityFilter,
+  };
+
+  const setSearch = useCallback((value: string) => {
+    void setSearchRaw(value || null);
+  }, [setSearchRaw]);
 
   const setFilter = useCallback((key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  }, []);
+    if (key === 'status') {
+      void setStatusFilter(value === 'all' ? null : value);
+    } else if (key === 'priority') {
+      void setPriorityFilter(value === 'all' ? null : value);
+    }
+  }, [setStatusFilter, setPriorityFilter]);
 
   const clearAll = useCallback(() => {
-    setSearch('');
-    setFilters({});
-  }, []);
+    void setSearchRaw(null);
+    void setStatusFilter(null);
+    void setPriorityFilter(null);
+  }, [setSearchRaw, setStatusFilter, setPriorityFilter]);
 
   const filteredData = data.filter((item) => {
     // Search filter
