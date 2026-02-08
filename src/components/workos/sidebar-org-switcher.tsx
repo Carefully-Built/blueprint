@@ -1,8 +1,12 @@
 'use client';
 
-import { Building2, ChevronDown, Plus } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { ChevronDown, Plus } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
+
+import { api } from '@convex/_generated/api';
 
 import { CreateOrganization } from './create-organization';
 
@@ -19,7 +23,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils';
 import { useOrganization } from '@/providers';
 
-
 interface Organization {
   id: string;
   name: string;
@@ -35,6 +38,42 @@ interface SidebarOrgSwitcherProps {
   readonly onSwitch?: (orgId: string) => void;
 }
 
+interface OrgLogoProps {
+  readonly orgId: string;
+  readonly name: string;
+  readonly size?: 'sm' | 'md';
+  readonly className?: string;
+}
+
+function OrgLogo({ orgId, name, size = 'md', className }: OrgLogoProps): React.ReactElement {
+  const orgData = useQuery(api.functions.organizations.queries.getByWorkosId, { workosId: orgId });
+  const logoUrl = orgData?.logoUrl ?? null;
+  
+  const initials = name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+  
+  const sizeClasses = size === 'sm' ? 'size-6' : 'size-8';
+  const textClasses = size === 'sm' ? 'text-xs' : 'text-xs';
+
+  if (logoUrl) {
+    return (
+      <div className={cn('relative shrink-0 rounded-md overflow-hidden', sizeClasses, className)}>
+        <Image src={logoUrl} alt={name} fill className="object-cover" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('flex shrink-0 items-center justify-center rounded-md bg-primary/10 font-semibold text-primary', sizeClasses, textClasses, className)}>
+      {initials}
+    </div>
+  );
+}
+
 export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSwitcherProps): React.ReactElement {
   const router = useRouter();
   const { organizationId, setOrganizationId } = useOrganization();
@@ -46,7 +85,6 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
       .then((res) => (res.ok ? res.json() : { organizations: [] }))
       .then((data: OrganizationsResponse) => {
         setOrganizations(data.organizations);
-        // Find the current org from context or use first
         const matchingOrg = data.organizations.find((o) => o.id === organizationId);
         if (matchingOrg) {
           setCurrentOrg(matchingOrg);
@@ -106,14 +144,6 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
     router.refresh();
   };
 
-  const initials =
-    currentOrg?.name
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase() ?? 'O';
-
   const dropdownContent = (
     <DropdownMenuContent align={collapsed ? 'center' : 'start'} className="w-56">
       <DropdownMenuLabel>Organizations</DropdownMenuLabel>
@@ -126,7 +156,7 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
             void handleSwitch(org);
           }}
         >
-          <Building2 className="mr-2 size-4" />
+          <OrgLogo orgId={org.id} name={org.name} size="sm" className="mr-2" />
           <span className="truncate">{org.name}</span>
         </DropdownMenuItem>
       ))}
@@ -152,9 +182,13 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button className="h-10 w-full" size="icon" variant="ghost">
-                <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">
-                  {initials}
-                </div>
+                {currentOrg ? (
+                  <OrgLogo orgId={currentOrg.id} name={currentOrg.name} size="md" />
+                ) : (
+                  <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">
+                    O
+                  </div>
+                )}
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -170,9 +204,13 @@ export function SidebarOrgSwitcher({ collapsed = false, onSwitch }: SidebarOrgSw
       <DropdownMenuTrigger asChild>
         <Button className="h-10 w-full justify-between px-2" variant="ghost">
           <span className="flex min-w-0 items-center gap-2">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-primary/10 text-xs font-semibold text-primary">
-              {initials}
-            </div>
+            {currentOrg ? (
+              <OrgLogo orgId={currentOrg.id} name={currentOrg.name} size="sm" />
+            ) : (
+              <div className="flex size-6 shrink-0 items-center justify-center rounded bg-primary/10 text-xs font-semibold text-primary">
+                O
+              </div>
+            )}
             <span className="truncate text-sm">{currentOrg?.name ?? 'Select Org'}</span>
           </span>
           <ChevronDown className="size-4 shrink-0 opacity-50" />
