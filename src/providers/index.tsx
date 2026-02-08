@@ -17,7 +17,7 @@ interface ProvidersProps {
 
 export const Providers = ({ children }: ProvidersProps): React.ReactElement => (
   <QueryProvider>
-    <WorkOsWidgets>
+    <WorkOsWidgets theme={{ accentColor: 'teal', radius: 'medium' }}>
       <ConvexClientProvider>{children}</ConvexClientProvider>
     </WorkOsWidgets>
   </QueryProvider>

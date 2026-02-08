@@ -37,7 +37,7 @@ export function AccountSection(): React.ReactElement {
   }, [handleUserUpdate]);
 
   return (
-    <WorkOsWidgets>
+    <WorkOsWidgets theme={{ accentColor: 'teal', radius: 'medium' }}>
       <div className="space-y-6">
         <Card>
           <CardHeader>

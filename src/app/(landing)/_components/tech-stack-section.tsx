@@ -1,42 +1,50 @@
-import { 
-  Code2, 
-  Database, 
-  Shield, 
-  Palette,
-  Paintbrush,
-  FileCode
-} from 'lucide-react';
+import {
+  NextjsLogo,
+  ConvexLogo,
+  WorkOSLogo,
+  ShadcnLogo,
+  TailwindLogo,
+  TypeScriptLogo,
+} from '@/components/logos';
 
-const techStack = [
+import type { SVGProps } from 'react';
+
+interface TechItem {
+  readonly name: string;
+  readonly description: string;
+  readonly Logo: (props: SVGProps<SVGSVGElement>) => React.ReactElement;
+}
+
+const techStack: readonly TechItem[] = [
   {
     name: 'Next.js 15',
     description: 'App Router & Server Actions',
-    icon: Code2,
+    Logo: NextjsLogo,
   },
   {
     name: 'Convex',
     description: 'Real-time backend',
-    icon: Database,
+    Logo: ConvexLogo,
   },
   {
     name: 'WorkOS',
     description: 'Enterprise auth',
-    icon: Shield,
+    Logo: WorkOSLogo,
   },
   {
     name: 'shadcn/ui',
     description: 'Beautiful components',
-    icon: Palette,
+    Logo: ShadcnLogo,
   },
   {
     name: 'Tailwind CSS',
     description: 'Utility-first styling',
-    icon: Paintbrush,
+    Logo: TailwindLogo,
   },
   {
     name: 'TypeScript',
     description: 'Type-safe development',
-    icon: FileCode,
+    Logo: TypeScriptLogo,
   },
 ];
 
@@ -63,8 +71,8 @@ export function TechStackSection(): React.ReactElement {
               key={tech.name} 
               className="group flex items-start gap-4 rounded-lg p-4 transition-colors hover:bg-muted"
             >
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-lg border bg-background transition-colors group-hover:border-primary/50">
-                <tech.icon className="size-6 text-muted-foreground transition-colors group-hover:text-primary" />
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border bg-background transition-colors group-hover:border-primary/50 overflow-hidden">
+                <tech.Logo className="size-8" />
               </div>
               <div>
                 <h3 className="font-semibold">{tech.name}</h3>

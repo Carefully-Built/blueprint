@@ -30,7 +30,7 @@ export function OrganizationSection({
         </CardHeader>
         <CardContent>
           {teamAuthToken ? (
-            <WorkOsWidgets>
+            <WorkOsWidgets theme={{ accentColor: 'teal', radius: 'medium' }}>
               <UsersManagement authToken={teamAuthToken} />
             </WorkOsWidgets>
           ) : (
