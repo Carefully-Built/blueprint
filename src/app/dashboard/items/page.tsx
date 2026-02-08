@@ -11,6 +11,7 @@ import type { Id } from '@convex/_generated/dataModel';
 
 import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
 import { SmartTable } from '@/components/shared/SmartTable';
+import { TableToolbar, useTableFilters, type FilterConfig } from '@/components/shared/TableToolbar';
 import { Button } from '@/components/ui/button';
 import {
   useCreateItem,
@@ -19,29 +20,36 @@ import {
   useUpdateItem,
 } from '@/hooks/use-items';
 import { useUsersByOrganization } from '@/hooks/use-users';
+import {
+  ITEM_STATUS_CONFIG,
+  ITEM_STATUS_OPTIONS,
+  ITEM_PRIORITY_CONFIG,
+  ITEM_PRIORITY_OPTIONS,
+  type ItemStatus,
+  type ItemPriority,
+} from '@/lib/filters';
 import { useOrganization } from '@/providers';
-
-
 
 interface Item {
   _id: Id<'items'>;
   name: string;
   description?: string;
-  status: 'draft' | 'active' | 'archived';
-  priority: 'low' | 'medium' | 'high';
+  status: ItemStatus;
+  priority: ItemPriority;
   createdAt: number;
 }
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-yellow-100 text-yellow-800',
-  active: 'bg-green-100 text-green-800',
-  archived: 'bg-gray-100 text-gray-800',
+// Filter configs - reusable for any table with these fields
+const STATUS_FILTER: FilterConfig<ItemStatus> = {
+  key: 'status',
+  label: 'Status',
+  options: ITEM_STATUS_OPTIONS,
 };
 
-const priorityColors: Record<string, string> = {
-  low: 'text-gray-500',
-  medium: 'text-yellow-600',
-  high: 'text-red-600',
+const PRIORITY_FILTER: FilterConfig<ItemPriority> = {
+  key: 'priority',
+  label: 'Priority',
+  options: ITEM_PRIORITY_OPTIONS,
 };
 
 const columns: Column<Item>[] = [
@@ -50,21 +58,27 @@ const columns: Column<Item>[] = [
   {
     header: 'Status',
     accessor: 'status',
-    render: (value) => (
-      <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusColors[value as string] ?? ''}`}>
-        {String(value)}
-      </span>
-    ),
+    render: (value) => {
+      const config = ITEM_STATUS_CONFIG[value as ItemStatus];
+      return (
+        <span className={`rounded-full px-2 py-1 text-xs font-medium ${config?.bgColor ?? ''}`}>
+          {config?.label ?? String(value)}
+        </span>
+      );
+    },
   },
   {
     header: 'Priority',
     accessor: 'priority',
     hideOnMobile: true,
-    render: (value) => (
-      <span className={`font-medium ${priorityColors[value as string] ?? ''}`}>
-        {String(value)}
-      </span>
-    ),
+    render: (value) => {
+      const config = ITEM_PRIORITY_CONFIG[value as ItemPriority];
+      return (
+        <span className={`font-medium ${config?.color ?? ''}`}>
+          {config?.label ?? String(value)}
+        </span>
+      );
+    },
   },
 ];
 
@@ -81,6 +95,20 @@ export default function ItemsPage(): React.ReactElement {
   const deleteItem = useDeleteItem();
 
   const isLoading = items === undefined || organizationId === null;
+
+  // Filtering
+  const {
+    filteredData,
+    search,
+    setSearch,
+    filters,
+    setFilter,
+    clearAll,
+  } = useTableFilters({
+    data: items ?? [],
+    searchFields: ['name', 'description'],
+    filterKeys: ['status', 'priority'],
+  });
   
   // Get the first user as fallback (the one who just signed in)
   // In production, you'd want proper user context from server components
@@ -184,13 +212,34 @@ export default function ItemsPage(): React.ReactElement {
         </div>
       </div>
 
+      <TableToolbar
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: 'Search items...',
+        }}
+        filters={[
+          {
+            config: STATUS_FILTER,
+            value: filters['status'] ?? 'all',
+            onChange: (v) => setFilter('status', v),
+          },
+          {
+            config: PRIORITY_FILTER,
+            value: filters['priority'] ?? 'all',
+            onChange: (v) => setFilter('priority', v),
+          },
+        ]}
+        onClearAll={clearAll}
+      />
+
       <SmartTable
-        data={items ?? []}
+        data={filteredData}
         columns={columns}
         isLoading={isLoading}
         actions={['edit', 'delete']}
         actionHandlers={actionHandlers}
-        noDataMessage="No items found"
+        noDataMessage={search || filters['status'] || filters['priority'] ? 'No matching items' : 'No items found'}
       />
 
       <ResponsiveSheet
