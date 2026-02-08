@@ -7,15 +7,27 @@ import {
   WorkOsWidgets,
 } from '@workos-inc/widgets';
 import { useRouter } from 'next/navigation';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, Suspense } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AccountSectionProps {
   authToken: string;
+  sessionId: string | null;
 }
 
-export function AccountSection({ authToken }: AccountSectionProps): React.ReactElement {
+function WidgetSkeleton(): React.ReactElement {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="h-12 w-full" />
+      <Skeleton className="h-12 w-full" />
+      <Skeleton className="h-12 w-full" />
+    </div>
+  );
+}
+
+export function AccountSection({ authToken, sessionId }: AccountSectionProps): React.ReactElement {
   const router = useRouter();
 
   const handleUserUpdate = useCallback((): void => {
@@ -29,12 +41,6 @@ export function AccountSection({ authToken }: AccountSectionProps): React.ReactE
     };
   }, [handleUserUpdate]);
 
-  // Dynamic token fetcher for UserSessions widget
-  // This mode doesn't require currentSessionId
-  const getAuthToken = useCallback(async (): Promise<string> => {
-    return authToken;
-  }, [authToken]);
-
   return (
     <WorkOsWidgets>
       <div className="space-y-6">
@@ -46,7 +52,9 @@ export function AccountSection({ authToken }: AccountSectionProps): React.ReactE
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <UserProfile authToken={authToken} />
+            <Suspense fallback={<WidgetSkeleton />}>
+              <UserProfile authToken={authToken} />
+            </Suspense>
           </CardContent>
         </Card>
 
@@ -58,7 +66,9 @@ export function AccountSection({ authToken }: AccountSectionProps): React.ReactE
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <UserSecurity authToken={authToken} />
+            <Suspense fallback={<WidgetSkeleton />}>
+              <UserSecurity authToken={authToken} />
+            </Suspense>
           </CardContent>
         </Card>
 
@@ -70,7 +80,15 @@ export function AccountSection({ authToken }: AccountSectionProps): React.ReactE
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <UserSessions authToken={getAuthToken} />
+            <Suspense fallback={<WidgetSkeleton />}>
+              {sessionId ? (
+                <UserSessions authToken={authToken} currentSessionId={sessionId} />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Unable to load sessions. Please try refreshing the page.
+                </p>
+              )}
+            </Suspense>
           </CardContent>
         </Card>
       </div>

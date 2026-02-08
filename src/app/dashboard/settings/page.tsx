@@ -54,6 +54,27 @@ async function getWidgetToken(userId: string, organizationId: string): Promise<s
   }
 }
 
+interface JwtPayload {
+  sid?: string;
+}
+
+function extractSessionId(accessToken: string): string | null {
+  try {
+    const parts = accessToken.split('.');
+    if (parts.length !== 3 || !parts[1]) return null;
+    
+    // base64url decode: replace URL-safe chars and add padding
+    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padding = base64.length % 4;
+    if (padding) base64 += '='.repeat(4 - padding);
+    
+    const payload = JSON.parse(Buffer.from(base64, 'base64').toString()) as JwtPayload;
+    return payload.sid ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function SettingsPage(): Promise<React.ReactElement> {
   const session = await getSession();
 
@@ -71,6 +92,7 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
 
   // Use access token for profile widgets
   const accessToken = session.accessToken;
+  const sessionId = extractSessionId(accessToken);
 
   return (
     <div className="space-y-6">
@@ -91,7 +113,7 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
         </TabsList>
 
         <TabsContent value="account" className="mt-6">
-          <AccountSection authToken={accessToken} />
+          <AccountSection authToken={accessToken} sessionId={sessionId} />
         </TabsContent>
 
         {organization && (

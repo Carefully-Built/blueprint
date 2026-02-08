@@ -134,62 +134,96 @@
   }
 }
 
-/* WorkOS Widget Mobile Responsive Styles */
+/* WorkOS Widget Responsive Styles */
+
+/* Fix text wrapping issue in WorkOS widgets */
+.workos-widget-container {
+  overflow-x: hidden;
+}
+
+.workos-widget-container * {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+/* Fix Radix Themes flex containers */
+.workos-widget-container .rt-Flex {
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+.workos-widget-container .rt-Text {
+  word-break: normal !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Fix table layout on mobile */
 @media (max-width: 640px) {
-  /* Make WorkOS widgets stack vertically and fit mobile */
-  .rt-Box,
-  .rt-Card,
-  .rt-Container {
-    max-width: 100% !important;
+  .workos-widget-container .rt-TableRoot {
+    display: block !important;
     width: 100% !important;
   }
 
-  /* User profile widget adjustments */
-  [data-workos-widget] {
-    font-size: 14px !important;
+  .workos-widget-container .rt-TableBody {
+    display: block !important;
   }
 
-  [data-workos-widget] .rt-Flex {
-    flex-wrap: wrap !important;
-    gap: 0.75rem !important;
-  }
-
-  [data-workos-widget] .rt-Grid {
+  .workos-widget-container .rt-TableRow {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.75rem !important;
+    padding: 1rem 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    gap: 0.5rem !important;
   }
 
-  /* Make form inputs full width */
-  [data-workos-widget] input,
-  [data-workos-widget] select,
-  [data-workos-widget] textarea {
+  .workos-widget-container .rt-TableCell {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     width: 100% !important;
+    padding: 0 !important;
     min-width: 0 !important;
   }
 
-  /* Stack user info sections */
-  [data-workos-widget] .rt-TableRow {
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 0.75rem 0 !important;
-    border-bottom: 1px solid var(--border) !important;
+  .workos-widget-container .rt-TableRowHeaderCell {
+    font-weight: 500 !important;
+    flex-shrink: 0 !important;
   }
 
-  [data-workos-widget] .rt-TableCell {
-    display: block !important;
-    width: 100% !important;
-    padding: 0.25rem 0 !important;
+  /* Make the value + edit button container work */
+  .workos-widget-container .rt-TableCell .rt-Flex {
+    flex: 1 !important;
+    min-width: 0 !important;
+    justify-content: flex-end !important;
+    text-align: right !important;
   }
 
-  /* Reduce padding on cards */
-  [data-workos-widget] .rt-Card {
+  /* Ensure text doesn't break weirdly */
+  .workos-widget-container .rt-TableCell .rt-Text,
+  .workos-widget-container .rt-TableCell span {
+    word-break: normal !important;
+    white-space: normal !important;
+    text-align: right !important;
+  }
+
+  /* Button styling */
+  .workos-widget-container .rt-TableCell button {
+    flex-shrink: 0 !important;
+    margin-left: 0.5rem !important;
+  }
+
+  /* Card adjustments */
+  .workos-widget-container .rt-Card {
     padding: 1rem !important;
   }
 
-  /* Button adjustments */
-  [data-workos-widget] button {
-    width: 100% !important;
-    justify-content: center !important;
+  /* Profile picture row */
+  .workos-widget-container img[alt*="avatar"],
+  .workos-widget-container img[alt*="profile"] {
+    width: 48px !important;
+    height: 48px !important;
   }
 }
