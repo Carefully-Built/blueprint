@@ -1,7 +1,10 @@
 'use client';
 
+import { useAccessToken } from '@workos-inc/authkit-nextjs';
+
 import { UsersManagement, WorkOsWidgets } from '@/components/workos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { OrganizationCard } from './organization-card';
 
 interface OrganizationSectionProps {
@@ -10,50 +13,40 @@ interface OrganizationSectionProps {
     name: string;
     role: string;
   };
-  teamAuthToken: string | null;
 }
 
 export function OrganizationSection({ 
   organization, 
-  teamAuthToken 
 }: OrganizationSectionProps): React.ReactElement {
+  const { getAccessToken, loading, error } = useAccessToken();
+
   return (
     <div className="space-y-6">
       {/* Organization Card */}
       <OrganizationCard organization={organization} />
 
       {/* Team Members */}
-      {teamAuthToken && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>
-              Invite and manage your team
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <WorkOsWidgets>
-              <UsersManagement authToken={teamAuthToken} />
-            </WorkOsWidgets>
-          </CardContent>
-        </Card>
-      )}
-
-      {!teamAuthToken && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>
-              Team management is not available
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Unable to load team management. Please contact your administrator.
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Members</CardTitle>
+          <CardDescription>
+            Invite and manage your team
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-32 w-full" />
+          ) : error ? (
+            <p className="text-sm text-destructive">
+              Unable to load team management. Please try refreshing the page.
             </p>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <WorkOsWidgets>
+              <UsersManagement authToken={getAccessToken} />
+            </WorkOsWidgets>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

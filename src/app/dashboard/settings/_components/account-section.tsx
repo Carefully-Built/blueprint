@@ -1,5 +1,6 @@
 'use client';
 
+import { useAccessToken } from '@workos-inc/authkit-nextjs';
 import {
   UserProfile,
   UserSecurity,
@@ -10,14 +11,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface AccountSectionProps {
-  authToken: string;
-  sessionId: string | null;
-}
-
-export function AccountSection({ authToken, sessionId }: AccountSectionProps): React.ReactElement {
+export function AccountSection(): React.ReactElement {
   const router = useRouter();
+  const { getAccessToken, loading, error } = useAccessToken();
 
   // Set up listener for user updates
   const handleUserUpdate = useCallback((): void => {
@@ -31,6 +29,30 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
     };
   }, [handleUserUpdate]);
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-32 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-sm text-destructive">
+        Error loading account settings. Please try refreshing the page.
+      </div>
+    );
+  }
+
   return (
     <WorkOsWidgets>
       <div className="space-y-6">
@@ -43,7 +65,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserProfile authToken={authToken} />
+            <UserProfile authToken={getAccessToken} />
           </CardContent>
         </Card>
 
@@ -56,7 +78,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UserSecurity authToken={authToken} />
+            <UserSecurity authToken={getAccessToken} />
           </CardContent>
         </Card>
 
@@ -69,11 +91,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {sessionId ? (
-              <UserSessions authToken={authToken} currentSessionId={sessionId} />
-            ) : (
-              <p className="text-sm text-muted-foreground">Unable to load sessions.</p>
-            )}
+            <UserSessions authToken={getAccessToken} />
           </CardContent>
         </Card>
       </div>

@@ -5,9 +5,8 @@ import { AccountSection } from './_components/account-section';
 import { OrganizationSection } from './_components/organization-section';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getSession, type SessionData } from '@/lib/session';
+import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
-import { getWidgetToken } from '@/lib/workos-widgets';
 
 interface OrgInfo {
   id: string;
@@ -15,99 +14,40 @@ interface OrgInfo {
   role: string;
 }
 
-interface UserAndOrg {
-  session: SessionData;
-  organization: OrgInfo | null;
-  sessionId: string | null;
-}
-
-interface JwtPayload {
-  sid?: string;
-  sub?: string;
-  exp?: number;
-  iat?: number;
-}
-
-function base64UrlDecode(str: string): string {
-  // Convert base64url to base64
-  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  // Pad with '=' if necessary
-  const padding = base64.length % 4;
-  if (padding) {
-    base64 += '='.repeat(4 - padding);
-  }
-  return Buffer.from(base64, 'base64').toString();
-}
-
-function extractSessionId(accessToken: string): string | null {
-  try {
-    // JWT format: header.payload.signature
-    const parts = accessToken.split('.');
-    if (parts.length !== 3 || !parts[1]) return null;
-    
-    const payload = JSON.parse(base64UrlDecode(parts[1])) as JwtPayload;
-    return payload.sid ?? null;
-  } catch (err) {
-    console.error('Error extracting session ID:', err);
-    return null;
-  }
-}
-
-async function getUserAndOrg(): Promise<UserAndOrg> {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect('/login');
-  }
-
-  const sessionId = extractSessionId(session.accessToken);
-
+async function getOrganization(userId: string): Promise<OrgInfo | null> {
   try {
     const memberships = await workos.userManagement.listOrganizationMemberships({
-      userId: session.user.id,
+      userId,
     });
 
     const firstMembership = memberships.data[0];
     if (!firstMembership) {
-      return { session, organization: null, sessionId };
+      return null;
     }
 
     const org = await workos.organizations.getOrganization(
       firstMembership.organizationId
     );
 
-    const roleSlug = firstMembership.role.slug;
-
     return {
-      session,
-      organization: {
-        id: org.id,
-        name: org.name,
-        role: roleSlug || 'member',
-      },
-      sessionId,
+      id: org.id,
+      name: org.name,
+      role: firstMembership.role.slug || 'member',
     };
   } catch (err) {
     console.error('Error getting user org:', err);
-    return { session, organization: null, sessionId };
+    return null;
   }
 }
 
 export default async function SettingsPage(): Promise<React.ReactElement> {
-  const { session, organization, sessionId } = await getUserAndOrg();
-  const accessToken = session.accessToken;
+  const session = await getSession();
 
-  let teamAuthToken: string | null = null;
-  if (organization) {
-    try {
-      teamAuthToken = await getWidgetToken({
-        organizationId: organization.id,
-        scopes: ['widgets:users-table:manage'],
-      });
-    } catch (err) {
-      console.error('Error getting widget token:', err);
-    }
+  if (!session?.user) {
+    redirect('/login');
   }
+
+  const organization = await getOrganization(session.user.id);
 
   return (
     <div className="space-y-6">
@@ -128,18 +68,12 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
         </TabsList>
 
         <TabsContent value="account" className="mt-6">
-          <AccountSection 
-            authToken={accessToken} 
-            sessionId={sessionId}
-          />
+          <AccountSection />
         </TabsContent>
 
         {organization && (
           <TabsContent value="organization" className="mt-6">
-            <OrganizationSection 
-              organization={organization}
-              teamAuthToken={teamAuthToken}
-            />
+            <OrganizationSection organization={organization} />
           </TabsContent>
         )}
       </Tabs>
