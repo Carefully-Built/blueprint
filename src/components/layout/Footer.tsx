@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Github, Twitter } from 'lucide-react';
 
+import { ThemeToggle } from '@/components/theme-toggle';
+
 const footerLinks = {
   product: [
     { label: 'Features', href: '/#features' },
@@ -82,6 +84,7 @@ export function Footer(): React.ReactElement {
             © {new Date().getFullYear()} Blueprint. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {footerLinks.social.map((link) => (
               <Link
                 key={link.href}

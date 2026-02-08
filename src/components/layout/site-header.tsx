@@ -3,9 +3,8 @@ import Link from 'next/link';
 
 import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
+import { AuthButton } from './auth-button';
 
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { landingNav } from '@/config/site';
 
 export function SiteHeader(): React.ReactElement {
@@ -28,14 +27,11 @@ export function SiteHeader(): React.ReactElement {
 
         <div className="hidden items-center gap-4 md:flex">
           <MainNav items={landingNav} />
-          <ThemeToggle />
-          <Button asChild>
-            <Link href="/login">Sign In</Link>
-          </Button>
+          <AuthButton />
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
+        <div className="flex items-center md:hidden">
+          <AuthButton />
         </div>
       </div>
     </header>

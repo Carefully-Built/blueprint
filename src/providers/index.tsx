@@ -18,7 +18,7 @@ interface ProvidersProps {
 }
 
 export const Providers = ({ children }: ProvidersProps): React.ReactElement => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <NuqsAdapter>
       <QueryProvider>
         <WorkOsWidgets theme={{ accentColor: 'teal', radius: 'medium' }}>
