@@ -7,27 +7,24 @@ import {
   WorkOsWidgets,
 } from '@workos-inc/widgets';
 import { useRouter } from 'next/navigation';
-import { useEffect, useCallback, Suspense } from 'react';
+import { useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 
-interface AccountSectionProps {
-  authToken: string;
-  sessionId: string | null;
+/**
+ * Fetches a fresh access token from the server
+ * This is called by WorkOS widgets when they need to make API requests
+ */
+async function fetchAccessToken(): Promise<string> {
+  const response = await fetch('/api/auth/token');
+  if (!response.ok) {
+    throw new Error('Failed to fetch access token');
+  }
+  const data = await response.json() as { accessToken: string };
+  return data.accessToken;
 }
 
-function WidgetSkeleton(): React.ReactElement {
-  return (
-    <div className="space-y-3">
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-12 w-full" />
-    </div>
-  );
-}
-
-export function AccountSection({ authToken, sessionId }: AccountSectionProps): React.ReactElement {
+export function AccountSection(): React.ReactElement {
   const router = useRouter();
 
   const handleUserUpdate = useCallback((): void => {
@@ -52,9 +49,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <Suspense fallback={<WidgetSkeleton />}>
-              <UserProfile authToken={authToken} />
-            </Suspense>
+            <UserProfile authToken={fetchAccessToken} />
           </CardContent>
         </Card>
 
@@ -66,9 +61,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <Suspense fallback={<WidgetSkeleton />}>
-              <UserSecurity authToken={authToken} />
-            </Suspense>
+            <UserSecurity authToken={fetchAccessToken} />
           </CardContent>
         </Card>
 
@@ -80,15 +73,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <Suspense fallback={<WidgetSkeleton />}>
-              {sessionId ? (
-                <UserSessions authToken={authToken} currentSessionId={sessionId} />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Unable to load sessions. Please try refreshing the page.
-                </p>
-              )}
-            </Suspense>
+            <UserSessions authToken={fetchAccessToken} />
           </CardContent>
         </Card>
       </div>
