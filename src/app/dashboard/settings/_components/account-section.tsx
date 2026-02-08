@@ -13,12 +13,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 /**
  * Fetches a fresh widget token from the server (1-hour expiry)
- * This is called by WorkOS widgets when they need to make API requests
+ * Used by Profile, Security widgets
  */
 async function fetchWidgetToken(): Promise<string> {
-  const response = await fetch('/api/auth/token');
+  const response = await fetch('/api/auth/token?type=widget');
   if (!response.ok) {
     throw new Error('Failed to fetch widget token');
+  }
+  const data = await response.json() as { token: string };
+  return data.token;
+}
+
+/**
+ * Fetches a fresh access token from the server (5-min expiry)
+ * Used by UserSessions widget which requires access tokens
+ */
+async function fetchAccessToken(): Promise<string> {
+  const response = await fetch('/api/auth/token?type=access');
+  if (!response.ok) {
+    throw new Error('Failed to fetch access token');
   }
   const data = await response.json() as { token: string };
   return data.token;
@@ -73,7 +86,7 @@ export function AccountSection(): React.ReactElement {
             </CardDescription>
           </CardHeader>
           <CardContent className="workos-widget-container">
-            <UserSessions authToken={fetchWidgetToken} />
+            <UserSessions authToken={fetchAccessToken} />
           </CardContent>
         </Card>
       </div>
