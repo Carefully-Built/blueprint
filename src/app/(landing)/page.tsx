@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+import { FaqSection } from './_components/faq-section';
 import { FeaturesSection } from './_components/features-section';
 import { TechStackSection } from './_components/tech-stack-section';
 
@@ -62,6 +63,9 @@ export default function LandingPage(): React.ReactElement {
 
       {/* Tech Stack Section */}
       <TechStackSection />
+
+      {/* FAQ Section */}
+      <FaqSection />
 
       {/* CTA Section */}
       <section className="py-24">
