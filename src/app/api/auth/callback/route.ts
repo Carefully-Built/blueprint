@@ -11,7 +11,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const code = searchParams.get('code');
 
   if (!code) {
-    return NextResponse.redirect(new URL('/sign-in?error=no_code', request.url));
+    return NextResponse.redirect(new URL('/login?error=no_code', request.url));
   }
 
   try {
@@ -31,6 +31,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   } catch (error) {
     console.error('OAuth callback error:', error);
-    return NextResponse.redirect(new URL('/sign-in?error=auth_failed', request.url));
+    return NextResponse.redirect(new URL('/login?error=auth_failed', request.url));
   }
 }

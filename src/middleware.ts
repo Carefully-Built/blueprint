@@ -7,8 +7,7 @@ import type { NextRequest } from 'next/server';
 // Paths that don't require authentication
 const PUBLIC_PATHS = [
   '/',
-  '/sign-in',
-  '/sign-up',
+  '/login',
   '/signup',
   '/forgot-password',
   '/update-password',
@@ -54,7 +53,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const session = await getSessionFromRequest(request);
 
   if (!session) {
-    const url = new URL('/sign-in', request.url);
+    const url = new URL('/login', request.url);
     url.searchParams.set('from', pathname);
     return NextResponse.redirect(url);
   }
