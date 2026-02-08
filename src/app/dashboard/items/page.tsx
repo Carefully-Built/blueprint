@@ -115,7 +115,7 @@ export default function ItemsPage(): React.ReactElement {
   // Pagination
   const pagination = usePagination({
     totalItems: filteredData.length,
-    pageSize: 10,
+    pageSize: 20,
   });
 
   // Get paginated data

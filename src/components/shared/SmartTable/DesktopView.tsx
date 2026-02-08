@@ -108,7 +108,7 @@ export function DesktopView<T>({
   };
 
   const tableHeader = (
-    <TableHeader className={cn(stickyHeader && 'sticky top-0 z-10 bg-background')}>
+    <TableHeader className={cn(stickyHeader && 'sticky top-0 z-10 bg-muted/50 backdrop-blur-sm')}>
       <TableRow>
         {columns.map((col) => (
           <TableHead

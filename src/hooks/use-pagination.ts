@@ -4,7 +4,7 @@ import { useMemo, useCallback } from 'react';
 export interface UsePaginationOptions {
   /** Total number of items */
   totalItems: number;
-  /** Items per page (default: 10) */
+  /** Items per page (default: 20) */
   pageSize?: number;
   /** URL param name for page (default: 'page') */
   pageParam?: string;
@@ -43,7 +43,7 @@ export interface UsePaginationReturn {
 
 export function usePagination({
   totalItems,
-  pageSize = 10,
+  pageSize = 20,
   pageParam = 'page',
 }: UsePaginationOptions): UsePaginationReturn {
   const [page, setPage] = useQueryState(
