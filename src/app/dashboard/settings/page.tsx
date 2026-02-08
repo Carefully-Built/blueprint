@@ -60,6 +60,11 @@ async function getUserAndOrg(): Promise<UserAndOrg> {
 export default async function SettingsPage(): Promise<React.ReactElement> {
   const { session, organization } = await getUserAndOrg();
   const accessToken = session.accessToken;
+  
+  // Debug: log token info (remove in production)
+  console.log('[Settings] Token exists:', !!accessToken);
+  console.log('[Settings] Token length:', accessToken?.length);
+  console.log('[Settings] Token prefix:', accessToken?.substring(0, 20) + '...');
 
   let teamAuthToken: string | null = null;
   if (organization) {
