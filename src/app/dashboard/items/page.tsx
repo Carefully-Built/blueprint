@@ -19,7 +19,9 @@ import {
   useItemsByOrganization,
   useUpdateItem,
 } from '@/hooks/use-items';
+import { usePagination } from '@/hooks/use-pagination';
 import { useUsersByOrganization } from '@/hooks/use-users';
+import { exportToCsv, tableColumnsToCsv } from '@/lib/csv-export';
 import {
   ITEM_STATUS_CONFIG,
   ITEM_STATUS_OPTIONS,
@@ -109,6 +111,15 @@ export default function ItemsPage(): React.ReactElement {
     searchFields: ['name', 'description'],
     filterKeys: ['status', 'priority'],
   });
+
+  // Pagination
+  const pagination = usePagination({
+    totalItems: filteredData.length,
+    pageSize: 10,
+  });
+
+  // Get paginated data
+  const paginatedData = pagination.paginate(filteredData);
   
   // Get the first user as fallback (the one who just signed in)
   // In production, you'd want proper user context from server components
@@ -139,7 +150,16 @@ export default function ItemsPage(): React.ReactElement {
   };
 
   const handleDownload = (): void => {
-    toast.info('Exporting items...');
+    if (!filteredData.length) {
+      toast.error('No items to export');
+      return;
+    }
+    
+    const csvColumns = tableColumnsToCsv(columns);
+    exportToCsv(filteredData, csvColumns, 'items.csv', {
+      formatDate: (d) => new Date(d).toLocaleDateString(),
+    });
+    toast.success(`Exported ${filteredData.length} items`);
   };
 
   const handleSubmit = async (data: { 
@@ -234,12 +254,22 @@ export default function ItemsPage(): React.ReactElement {
       />
 
       <SmartTable
-        data={filteredData}
+        data={paginatedData}
         columns={columns}
         isLoading={isLoading}
         actions={['edit', 'delete']}
         actionHandlers={actionHandlers}
         noDataMessage={search || filters['status'] || filters['priority'] ? 'No matching items' : 'No items found'}
+        stickyHeader
+        pagination={{
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          pageSize: pagination.pageSize,
+          startIndex: pagination.startIndex,
+          endIndex: pagination.endIndex,
+          onPageChange: pagination.goToPage,
+        }}
       />
 
       <ResponsiveSheet

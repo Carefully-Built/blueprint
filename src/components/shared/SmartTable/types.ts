@@ -25,6 +25,23 @@ export interface ActionHandlers<T> {
   onDelete?: (item: T) => void;
 }
 
+export interface PaginationConfig {
+  /** Current page (1-indexed) */
+  currentPage: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Total number of items */
+  totalItems: number;
+  /** Items per page */
+  pageSize: number;
+  /** Start index (0-indexed) */
+  startIndex: number;
+  /** End index (exclusive) */
+  endIndex: number;
+  /** Go to specific page */
+  onPageChange: (page: number) => void;
+}
+
 export interface SmartTableProps<T> {
   /** Data array to display */
   data: T[];
@@ -48,4 +65,10 @@ export interface SmartTableProps<T> {
   onRowClick?: (item: T) => void;
   /** Custom mobile card renderer */
   renderMobileCard?: (item: T) => ReactNode;
+  /** Enable pagination */
+  pagination?: PaginationConfig;
+  /** Enable sticky header with scrollable body */
+  stickyHeader?: boolean;
+  /** Max height for scrollable table (default: 'calc(100vh - 300px)') */
+  maxHeight?: string;
 }

@@ -1,6 +1,5 @@
 'use client';
 
-
 import { DesktopView } from './DesktopView';
 import { MobileView } from './MobileView';
 
@@ -26,6 +25,9 @@ export function SmartTable<T>({
   },
   onRowClick,
   renderMobileCard,
+  pagination,
+  stickyHeader,
+  maxHeight,
 }: SmartTableProps<T>): React.ReactElement {
   const isMobile = useIsMobile();
 
@@ -43,6 +45,7 @@ export function SmartTable<T>({
         getRowKey={getRowKey}
         onRowClick={onRowClick}
         renderMobileCard={renderMobileCard}
+        pagination={pagination}
       />
     );
   }
@@ -59,6 +62,9 @@ export function SmartTable<T>({
       noDataMessage={noDataMessage}
       getRowKey={getRowKey}
       onRowClick={onRowClick}
+      pagination={pagination}
+      stickyHeader={stickyHeader}
+      maxHeight={maxHeight}
     />
   );
 }
