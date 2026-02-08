@@ -13,10 +13,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 interface AccountSectionProps {
   authToken: string;
-  sessionId: string | null;
 }
 
-export function AccountSection({ authToken, sessionId }: AccountSectionProps): React.ReactElement {
+export function AccountSection({ authToken }: AccountSectionProps): React.ReactElement {
   const router = useRouter();
 
   const handleUserUpdate = useCallback((): void => {
@@ -30,6 +29,12 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
     };
   }, [handleUserUpdate]);
 
+  // Dynamic token fetcher for UserSessions widget
+  // This mode doesn't require currentSessionId
+  const getAuthToken = useCallback(async (): Promise<string> => {
+    return authToken;
+  }, [authToken]);
+
   return (
     <WorkOsWidgets>
       <div className="space-y-6">
@@ -40,7 +45,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
               Manage your personal information and preferences.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="workos-widget-container">
             <UserProfile authToken={authToken} />
           </CardContent>
         </Card>
@@ -52,7 +57,7 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
               Manage your password and two-factor authentication.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="workos-widget-container">
             <UserSecurity authToken={authToken} />
           </CardContent>
         </Card>
@@ -64,12 +69,8 @@ export function AccountSection({ authToken, sessionId }: AccountSectionProps): R
               View and manage your active sessions across devices.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {sessionId ? (
-              <UserSessions authToken={authToken} currentSessionId={sessionId} />
-            ) : (
-              <p className="text-sm text-muted-foreground">Unable to load sessions.</p>
-            )}
+          <CardContent className="workos-widget-container">
+            <UserSessions authToken={getAuthToken} />
           </CardContent>
         </Card>
       </div>

@@ -133,3 +133,63 @@
     cursor: pointer;
   }
 }
+
+/* WorkOS Widget Mobile Responsive Styles */
+@media (max-width: 640px) {
+  /* Make WorkOS widgets stack vertically and fit mobile */
+  .rt-Box,
+  .rt-Card,
+  .rt-Container {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* User profile widget adjustments */
+  [data-workos-widget] {
+    font-size: 14px !important;
+  }
+
+  [data-workos-widget] .rt-Flex {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+
+  [data-workos-widget] .rt-Grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Make form inputs full width */
+  [data-workos-widget] input,
+  [data-workos-widget] select,
+  [data-workos-widget] textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Stack user info sections */
+  [data-workos-widget] .rt-TableRow {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  [data-workos-widget] .rt-TableCell {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.25rem 0 !important;
+  }
+
+  /* Reduce padding on cards */
+  [data-workos-widget] .rt-Card {
+    padding: 1rem !important;
+  }
+
+  /* Button adjustments */
+  [data-workos-widget] button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

@@ -9,6 +9,13 @@ import { useState, createContext, useContext, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SidebarOrgSwitcher } from "@/components/workos"
 import { signOutAction } from "@/app/(auth)/actions"
@@ -243,12 +250,48 @@ export function AppSidebar() {
           <Menu className="size-5" />
         </Button>
 
-        <Avatar className="size-8">
-          <AvatarImage src={user?.imageUrl} />
-          <AvatarFallback className="text-xs">
-            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Avatar className="size-8">
+                <AvatarImage src={user?.imageUrl} />
+                <AvatarFallback className="text-xs">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="flex items-center gap-2 p-2">
+              <Avatar className="size-8">
+                <AvatarImage src={user?.imageUrl} />
+                <AvatarFallback className="text-xs">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user?.name || 'User'}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings" className="cursor-pointer">
+                <Settings className="size-4 mr-2" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              variant="destructive"
+              onClick={() => { void handleSignOut() }}
+              className="cursor-pointer"
+            >
+              <LogOut className="size-4 mr-2" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Mobile Drawer */}

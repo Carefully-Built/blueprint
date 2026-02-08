@@ -8,6 +8,15 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,6 +28,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 function triggerOrgRefresh(): void {
   window.dispatchEvent(new CustomEvent('org-updated'));
@@ -34,6 +44,7 @@ interface OrganizationCardProps {
 
 export function OrganizationCard({ organization }: OrganizationCardProps): React.ReactElement {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const [name, setName] = useState(organization.name);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -90,12 +101,89 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
     }
   };
 
+  const EditForm = (): React.ReactElement => (
+    <div className="space-y-6 py-6 px-4 md:px-0">
+      <div className="space-y-2">
+        <Label>Organization Logo</Label>
+        <div className="flex items-center gap-4">
+          <div className="relative size-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted shrink-0">
+            {logoPreview ? (
+              <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
+            ) : (
+              <Upload className="size-8 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <Input type="file" accept="image/*" onChange={handleLogoChange} className="text-sm" />
+            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="orgName">Organization Name</Label>
+        <Input id="orgName" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+    </div>
+  );
+
+  const SaveButton = (): React.ReactElement => (
+    <Button onClick={handleSave} disabled={loading || name === organization.name} className="w-full">
+      {loading ? 'Saving...' : 'Save Changes'}
+    </Button>
+  );
+
+  // Use Drawer on mobile, Sheet on desktop
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+        <Card className="overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="relative size-14 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                {logoPreview ? (
+                  <Image src={logoPreview} alt="Logo" fill className="object-cover" />
+                ) : (
+                  <Building2 className="size-6 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-base truncate">{organization.name}</h3>
+                <p className="text-sm text-muted-foreground capitalize">{organization.role}</p>
+              </div>
+              {isAdmin && (
+                <DrawerTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <Pencil className="size-3.5" />
+                    Edit
+                  </Button>
+                </DrawerTrigger>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Edit Organization</DrawerTitle>
+            <DrawerDescription>
+              Update your organization details
+            </DrawerDescription>
+          </DrawerHeader>
+          <EditForm />
+          <DrawerFooter>
+            <SaveButton />
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            {/* Logo */}
             <div className="relative size-14 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
               {logoPreview ? (
                 <Image src={logoPreview} alt="Logo" fill className="object-cover" />
@@ -103,14 +191,10 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
                 <Building2 className="size-6 text-muted-foreground" />
               )}
             </div>
-
-            {/* Info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-base truncate">{organization.name}</h3>
               <p className="text-sm text-muted-foreground capitalize">{organization.role}</p>
             </div>
-
-            {/* Edit Button */}
             {isAdmin && (
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
@@ -130,35 +214,9 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
             Update your organization details
           </SheetDescription>
         </SheetHeader>
-
-        <div className="space-y-6 py-6">
-          <div className="space-y-2">
-            <Label>Organization Logo</Label>
-            <div className="flex items-center gap-4">
-              <div className="relative size-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted">
-                {logoPreview ? (
-                  <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
-                ) : (
-                  <Upload className="size-8 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1">
-                <Input type="file" accept="image/*" onChange={handleLogoChange} className="text-sm" />
-                <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="orgName">Organization Name</Label>
-            <Input id="orgName" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-        </div>
-
+        <EditForm />
         <SheetFooter>
-          <Button onClick={handleSave} disabled={loading || name === organization.name} className="w-full">
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
+          <SaveButton />
         </SheetFooter>
       </SheetContent>
     </Sheet>
