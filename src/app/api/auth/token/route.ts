@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 
-import type { NextRequest } from 'next/server';
-
 import { getSession } from '@/lib/session';
 import { workos } from '@/lib/workos';
 
 /**
- * All widget scopes needed for Profile, Security, Sessions, and Team widgets
+ * Widget scopes for Profile, Security, and Team widgets
  */
 const WIDGET_SCOPES = [
   'widgets:users-table:manage',
@@ -17,13 +15,9 @@ const WIDGET_SCOPES = [
 
 /**
  * GET /api/auth/token
- * Returns tokens for WorkOS widgets
- * 
- * Query params:
- * - type=access: Returns the access token (5 min, for UserSessions)
- * - type=widget (default): Returns widget token (1 hour, for Profile/Security/Team)
+ * Returns widget token for WorkOS widgets (1 hour expiry)
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     const session = await getSession();
 
@@ -34,17 +28,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const tokenType = searchParams.get('type') || 'widget';
-
-    // For access token (used by UserSessions)
-    if (tokenType === 'access') {
-      return NextResponse.json({ 
-        token: session.accessToken 
-      });
-    }
-
-    // For widget token (used by Profile, Security, Team)
     const memberships = await workos.userManagement.listOrganizationMemberships({
       userId: session.user.id,
     });
