@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { AuthButton } from './auth-button';
 import { MainNav } from './main-nav';
 import { MobileNav } from './mobile-nav';
-import { AuthButton } from './auth-button';
 
 import { landingNav } from '@/config/site';
 

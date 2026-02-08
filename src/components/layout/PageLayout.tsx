@@ -1,7 +1,8 @@
+import { Footer } from './Footer';
+import { SiteHeader } from './site-header';
+
 import type { LayoutProps } from '@/types';
 
-import { SiteHeader } from './site-header';
-import { Footer } from './Footer';
 
 interface PageLayoutProps extends LayoutProps {
   /** Whether to show the footer. Defaults to true. */
