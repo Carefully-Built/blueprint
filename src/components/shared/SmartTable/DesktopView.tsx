@@ -128,6 +128,7 @@ export function DesktopView<T>({
 
   // Determine scrollable container styles
   const scrollContainerClass = cn(
+    'rounded-lg border overflow-hidden',
     fullHeight && 'flex-1 min-h-0 overflow-auto',
     !fullHeight && stickyHeader && 'overflow-auto'
   );
