@@ -28,15 +28,27 @@ interface JwtPayload {
   iat?: number;
 }
 
+function base64UrlDecode(str: string): string {
+  // Convert base64url to base64
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  // Pad with '=' if necessary
+  const padding = base64.length % 4;
+  if (padding) {
+    base64 += '='.repeat(4 - padding);
+  }
+  return Buffer.from(base64, 'base64').toString();
+}
+
 function extractSessionId(accessToken: string): string | null {
   try {
     // JWT format: header.payload.signature
     const parts = accessToken.split('.');
     if (parts.length !== 3 || !parts[1]) return null;
     
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString()) as JwtPayload;
+    const payload = JSON.parse(base64UrlDecode(parts[1])) as JwtPayload;
     return payload.sid ?? null;
-  } catch {
+  } catch (err) {
+    console.error('Error extracting session ID:', err);
     return null;
   }
 }

@@ -242,16 +242,6 @@ export function AppSidebar() {
         >
           <Menu className="size-5" />
         </Button>
-        
-        <Link href="/dashboard">
-          <Image
-            src="/images/blue_logo.svg"
-            alt="Blueprint"
-            width={28}
-            height={28}
-            className="size-7"
-          />
-        </Link>
 
         <Avatar className="size-8">
           <AvatarImage src={user?.imageUrl} />
