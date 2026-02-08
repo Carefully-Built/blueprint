@@ -55,7 +55,7 @@ export function MobileNav({ items }: MobileNavProps): React.ReactElement {
                 setOpen(false);
               }}
             >
-              <Link href="/sign-in">Sign In</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
           </div>
         </nav>

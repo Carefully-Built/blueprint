@@ -26,7 +26,7 @@ async function getUserAndOrg(): Promise<UserAndOrg> {
   const session = await getSession();
 
   if (!session?.user) {
-    redirect('/sign-in');
+    redirect('/login');
   }
 
   try {

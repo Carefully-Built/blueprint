@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   const session = await getSession();
 
   if (!session?.user) {
-    redirect('/sign-in');
+    redirect('/login');
   }
 
   let hasOrganization = false;
