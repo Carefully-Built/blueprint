@@ -229,7 +229,7 @@ export function OrganizationCard({ organization }: OrganizationCardProps): React
         const { storageId } = (await response.json()) as { storageId: string };
         await saveLogo({
           workosId: organization.id,
-          storageId: storageId as ReturnType<typeof api.functions.organizations.saveLogo>['_args']['storageId'],
+          storageId: storageId as ReturnType<typeof api.functions.organizations.mutations.saveLogo>['_args']['storageId'],
         });
       } else if (removeCurrentLogo && currentLogoUrl) {
         // Remove existing logo
