@@ -1,5 +1,7 @@
 'use client';
 
+import { WorkOsWidgets } from '@workos-inc/widgets';
+
 import { ConvexClientProvider } from './convex-provider';
 import { QueryProvider } from './query-provider';
 
@@ -13,6 +15,8 @@ interface ProvidersProps {
 
 export const Providers = ({ children }: ProvidersProps): React.ReactElement => (
   <QueryProvider>
-    <ConvexClientProvider>{children}</ConvexClientProvider>
+    <WorkOsWidgets>
+      <ConvexClientProvider>{children}</ConvexClientProvider>
+    </WorkOsWidgets>
   </QueryProvider>
 );
