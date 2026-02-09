@@ -9,10 +9,10 @@ import { ItemForm } from './_components/ItemForm';
 import type { ActionHandlers, Column } from '@/components/shared/SmartTable';
 import type { Id } from '@convex/_generated/dataModel';
 
+import { ResponsiveButton } from '@/components/layout';
 import { ResponsiveSheet } from '@/components/shared/ResponsiveSheet';
 import { SmartTable } from '@/components/shared/SmartTable';
 import { TableToolbar, useTableFilters, type FilterConfig } from '@/components/shared/TableToolbar';
-import { Button } from '@/components/ui/button';
 import {
   useCreateItem,
   useDeleteItem,
@@ -217,18 +217,21 @@ export default function ItemsPage(): React.ReactElement {
   return (
     <div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.8))] md:h-[calc(100vh-theme(spacing.12))] flex-col gap-6">
       <div className="flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Items</h1>
-        </div>
+        <h1 className="text-xl font-semibold tracking-tight">Items</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownload}>
-            <Download className="mr-2 size-4" />
-            Export
-          </Button>
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 size-4" />
-            New Item
-          </Button>
+          <ResponsiveButton
+            variant="outline"
+            desktopLabel="Export"
+            mobileLabel="Export"
+            icon={<Download className="size-4" />}
+            onClick={handleDownload}
+          />
+          <ResponsiveButton
+            desktopLabel="New Item"
+            mobileLabel="New"
+            icon={<Plus className="size-4" />}
+            onClick={handleCreate}
+          />
         </div>
       </div>
 

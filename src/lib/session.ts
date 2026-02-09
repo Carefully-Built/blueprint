@@ -9,6 +9,7 @@ export interface SessionData {
   user: User;
   accessToken: string;
   refreshToken: string;
+  organizationId?: string;
 }
 
 const SESSION_OPTIONS = {

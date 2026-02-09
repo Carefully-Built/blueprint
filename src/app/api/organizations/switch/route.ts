@@ -47,6 +47,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       user: session.user,
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
+      organizationId,
     });
 
     return NextResponse.json({ success: true, organizationId });

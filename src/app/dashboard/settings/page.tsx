@@ -15,25 +15,32 @@ interface OrgInfo {
   role: string;
 }
 
-async function getOrganization(userId: string): Promise<OrgInfo | null> {
+async function getOrganization(userId: string, sessionOrgId?: string): Promise<OrgInfo | null> {
   try {
     const memberships = await workos.userManagement.listOrganizationMemberships({
       userId,
     });
 
-    const firstMembership = memberships.data[0];
-    if (!firstMembership) {
+    if (memberships.data.length === 0) {
       return null;
     }
 
-    const org = await workos.organizations.getOrganization(
-      firstMembership.organizationId
-    );
+    // Use session org if it exists and user has access to it
+    const targetMembership = sessionOrgId
+      ? memberships.data.find((m) => m.organizationId === sessionOrgId)
+      : memberships.data[0];
+
+    const membership = targetMembership ?? memberships.data[0];
+    if (!membership) {
+      return null;
+    }
+
+    const org = await workos.organizations.getOrganization(membership.organizationId);
 
     return {
       id: org.id,
       name: org.name,
-      role: firstMembership.role.slug || 'member',
+      role: membership.role.slug || 'member',
     };
   } catch (err) {
     console.error('Error getting user org:', err);
@@ -64,7 +71,7 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
     redirect('/login');
   }
 
-  const organization = await getOrganization(session.user.id);
+  const organization = await getOrganization(session.user.id, session.organizationId);
   
   // Get widget token for team management
   let teamAuthToken: string | null = null;

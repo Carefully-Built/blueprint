@@ -26,7 +26,13 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
       userId: session.user.id,
     });
     hasOrganization = memberships.data.length > 0;
-    organizationId = memberships.data[0]?.organizationId;
+    
+    // Use session org if available and user has access, otherwise first membership
+    if (session.organizationId && memberships.data.some((m) => m.organizationId === session.organizationId)) {
+      organizationId = session.organizationId;
+    } else {
+      organizationId = memberships.data[0]?.organizationId;
+    }
   } catch (error) {
     console.error('Error checking organization:', error);
   }
